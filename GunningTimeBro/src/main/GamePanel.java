@@ -1,6 +1,7 @@
 package main;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class GamePanel extends JPanel {
     //SCREEN SETTINGS
@@ -12,4 +13,9 @@ public class GamePanel extends JPanel {
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;  //48*20 = 960 pixels
     public final int screenHeight = tileSize * maxScreenRow;  //48*12 = 576
+
+    public GamePanel() {
+        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+        this.setDoubleBuffered(true);
+    }
 }
