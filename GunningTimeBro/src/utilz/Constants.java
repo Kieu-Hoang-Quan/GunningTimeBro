@@ -24,7 +24,7 @@ public class Constants {
                 case RUNNING:
                     return 6;
                 case IDLE:
-                    return 5;
+                    return 4;
                 case HIT:
                     return 4;
                 case JUMP:
