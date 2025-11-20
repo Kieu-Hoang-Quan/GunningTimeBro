@@ -4,7 +4,9 @@ import javax.swing.*;
 
 public class Main {
     public static JFrame window;
+
     public static void main(String[] args) {
-        new Game();
+        SwingUtilities.invokeLater(() -> new Game());
     }
 }
+
