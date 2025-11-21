@@ -26,7 +26,7 @@ public class Constants {
                 case IDLE:
                     return 4;
                 case HIT:
-                    return 4;
+                    return 8;
                 case JUMP:
                 case ATTACK_1:
                 case ATTACK_JUMP_1:

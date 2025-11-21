@@ -1,95 +1,29 @@
 package enity;
 
-import javax.imageio.ImageIO;
+import utilz.LoadSave;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 
-import static utilz.Constants.Directions.*;
-import static utilz.Constants.Directions.DOWN;
 import static utilz.Constants.PlayerConstants.*;
 
 public class Player extends Enity {
-    private BufferedImage[] idleFrames;
-    private static final int IDLE_FRAME_COUNT = 4;
-    private static final String PLAYER_SPRITE_PATH = "/Player/idle_frame_%d.png";
-
-    private BufferedImage[] runFrames;
-    private static final int RUN_FRAME_COUNT = 6;
-    private static final String RUN_SPRITE_PATH = "/Player/run_%d.png";
-
     private BufferedImage[][] animations;
-    private int aniTick, aniIndex, aniSpeed = 20;
+    private int aniTick, aniIndex, aniSpeed = 14;
     private int playerAction = IDLE;
     private boolean left, up, right, down;
-    private boolean moving = false;
+    private boolean moving, attacking = false;
     private static final float playerSpeed = 3.0f;
+    private boolean flip = false;
 
     public Player(float x, float y) {
         super(x, y);
-        importImg();
         loadAnimations();
     }
 
-    private void importImg() {
-        // Idle
-        idleFrames = new BufferedImage[IDLE_FRAME_COUNT];
-        for (int i = 0; i < IDLE_FRAME_COUNT; i++) {
-            String resourcePath = String.format(PLAYER_SPRITE_PATH, i + 1);
-            try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
-                if (is == null) {
-                    throw new IOException("Resource not found: " + resourcePath);
-                }
-                idleFrames[i] = ImageIO.read(is);
-            } catch (IOException e) {
-                System.err.println("Failed to load player sprite frame " + (i + 1) + ": " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-        // RUN
-        runFrames = new BufferedImage[RUN_FRAME_COUNT];
-        for (int i = 0; i < RUN_FRAME_COUNT; i++) {
-            String resourcePath = String.format(RUN_SPRITE_PATH, i + 1);
-            try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
-                if (is == null) {
-                    throw new IOException("Resource not found: " + resourcePath);
-                }
-                runFrames[i] = ImageIO.read(is);
-            } catch (IOException e) {
-                System.err.println("Failed to load run sprite frame " + (i + 1) + ": " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void loadAnimations() {
-        animations = new BufferedImage[9][]; // 9 animation states based on Constants
-
-        // Initialize IDLE animation
-        animations[IDLE] = new BufferedImage[IDLE_FRAME_COUNT];
-        for (int i = 0; i < IDLE_FRAME_COUNT; i++) {
-            animations[IDLE][i] = idleFrames[i];
-        }
-
-        // Initialize RUNNING animation
-        animations[RUNNING] = new BufferedImage[RUN_FRAME_COUNT];
-        for (int i = 0; i < RUN_FRAME_COUNT; i++) {
-            animations[RUNNING][i] = runFrames[i];
-        }
-
-//        // Initialize other animation arrays (empty for now)
-//        for (int i = 0; i < animations.length; i++) {
-//            if (i != IDLE && i != RUNNING) {
-//                int spriteAmount = GetSpriteAmount(i);
-//                animations[i] = new BufferedImage[spriteAmount];
-//            }
-//        }
-    }
-
     public void update() {
-        updateAnimationTick();
         setAnimation();
+        updateAnimationTick();
         updatePos();
     }
 
@@ -100,24 +34,24 @@ public class Player extends Enity {
             aniIndex++;
             if (aniIndex >= GetSpriteAmount(playerAction)) {
                 aniIndex = 0;
+                attacking = false;
             }
         }
     }
 
-
     private void setAnimation() {
         int startAni = playerAction;
 
-        if (moving)
+        if (attacking) {
+            playerAction = HIT;
+        } else if (moving) {
             playerAction = RUNNING;
-        else
+        } else {
             playerAction = IDLE;
-
-        // Reset animation when action changes
-        if (startAni != playerAction) {
-            aniIndex = 0;
-            aniTick = 0;
         }
+
+        if (startAni != playerAction)
+            resetAniTick();
     }
 
     private void updatePos() {
@@ -140,46 +74,66 @@ public class Player extends Enity {
         }
     }
 
+    private void resetAniTick() {
+        aniTick = 0;
+        aniIndex = 0;
+    }
+
     public void render(Graphics g) {
-        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, 64, 64, null);
+        int width = 64;
+        int xPos = (int) x;
+
+        if (flip) {
+            g.drawImage(animations[playerAction][aniIndex], xPos + width, (int) y, -width, 64, null);
+        } else {
+            g.drawImage(animations[playerAction][aniIndex], xPos, (int) y, width, 64, null);
+        }
     }
 
-    public void resetDirBooleans(){
-        up = false;
-        down = false;
-        left = false;
-        right = false;
+    private void loadAnimations() {
+        animations = new BufferedImage[9][];
+
+        // Load IDLE sprite sheet and extract frames
+        BufferedImage idleSheet = LoadSave.GetSpriteAtlas(LoadSave.PLAYER_IDLE);
+        animations[IDLE] = new BufferedImage[4];
+        for (int i = 0; i < 4; i++) {
+            animations[IDLE][i] = idleSheet.getSubimage(i * 48, 0, 48, 48);
+        }
+
+        // Load RUN sprite sheet and extract frames
+        BufferedImage runSheet = LoadSave.GetSpriteAtlas(LoadSave.PLAYER_RUN);
+        animations[RUNNING] = new BufferedImage[6];
+        for (int i = 0; i < 6; i++) {
+            animations[RUNNING][i] = runSheet.getSubimage(i * 48, 0, 48, 48);
+        }
+
+        // Load HIT/ATTACK sprite sheet and extract frames
+        BufferedImage hitSheet = LoadSave.GetSpriteAtlas(LoadSave.PLAYER_HIT);
+        animations[HIT] = new BufferedImage[6];
+        for (int i = 0; i < 6; i++) {
+            animations[HIT][i] = hitSheet.getSubimage(i * 48, 0, 48, 48);
+        }
     }
 
-    public boolean isLeft() {
-        return left;
+    // Getters and Setters
+    public void resetDirBooleans() {
+        up = down = left = right = false;
     }
 
-    public void setLeft(boolean left) {
-        this.left = left;
-    }
+    public boolean isLeft() { return left; }
+    public void setLeft(boolean left) { this.left = left; }
 
-    public boolean isUp() {
-        return up;
-    }
+    public boolean isUp() { return up; }
+    public void setUp(boolean up) { this.up = up; }
 
-    public void setUp(boolean up) {
-        this.up = up;
-    }
+    public boolean isRight() { return right; }
+    public void setRight(boolean right) { this.right = right; }
 
-    public boolean isRight() {
-        return right;
-    }
+    public boolean isDown() { return down; }
+    public void setDown(boolean down) { this.down = down; }
 
-    public void setRight(boolean right) {
-        this.right = right;
-    }
+    public void setAttacking(boolean attacking) { this.attacking = attacking; }
 
-    public boolean isDown() {
-        return down;
-    }
-
-    public void setDown(boolean down) {
-        this.down = down;
-    }
+    public boolean isFlip() { return flip; }
+    public void setFlip(boolean flip) { this.flip = flip; }
 }
