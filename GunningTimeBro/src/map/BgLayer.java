@@ -1,4 +1,6 @@
 package map;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 
 public class BgLayer {
     private final BufferedImage sprite;
