@@ -25,8 +25,11 @@ public class Constants {
                 case HIT:
                     return 6;
                 case IDLE:
-                    return 4;
 //                case JUMP:
+                    return 4;
+                case JUMP:
+                    case FALLING:
+                        return 4;
 //                case ATTACK_1:
 //                case ATTACK_JUMP_1:
 //                case ATTACK_JUMP_2:

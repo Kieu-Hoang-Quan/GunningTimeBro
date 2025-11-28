@@ -1,8 +1,8 @@
 package utilz;
 
 import main.Game;
+import java.awt.Color;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +14,7 @@ public class LoadSave {
     public static final String PLAYER_IDLE = "Player/Idle1.png";
     public static final String PLAYER_RUN = "Player/Run1.png";
     public static final String PLAYER_HIT = "Player/Biker_attack1.png";
+    public static final String PLAYER_JUMP = "Player/Jump1.png";
 
     //Testing
     public static final String LEVEL_ATLAS = "Titles/outside_sprites.png";
