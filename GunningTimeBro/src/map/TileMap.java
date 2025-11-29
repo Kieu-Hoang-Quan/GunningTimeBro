@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 
 public class TileMap {
 
-    private final int[][] grid;   // map: ID tile
+    private final int[][] grid;   
     private final TileSet tileSet;
 
     public TileMap(int[][] grid, TileSet tileSet) {
@@ -21,17 +21,22 @@ public class TileMap {
         int cols = grid[0].length;
         int tileSize = tileSet.getTileSize();
 
-        int baseY = panelHeight - rows * tileSize;
+        final int GAME_HEIGHT = 324;
+    
+        int baseY = GAME_HEIGHT - rows * tileSize;
+    
+        int firstCol = Math.max(0, camX / tileSize);
+        int lastCol  = Math.min(cols - 1, (camX + panelWidth) / tileSize + 1);
 
         for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
+            for (int c = firstCol; c <= lastCol; c++) {  
                 int tileId = grid[r][c];
-                if (tileId == 0) continue; // 0 = empty
-
+                if (tileId == 0) continue;
+        
                 int worldX  = c * tileSize;
                 int screenX = worldX - camX;
                 int screenY = baseY + r * tileSize;
-
+        
                 tileSet.drawTile(g2, tileId, screenX, screenY);
             }
         }

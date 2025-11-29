@@ -28,7 +28,7 @@ public class TileSet {
     public void drawTile(Graphics2D g2, int tileId, int x, int y) {
         if (tileId <= 0) return;
 
-        tileId--; // 1-based → 0-based
+        tileId--; 
 
         int col = tileId % cols;
         int row = tileId / cols;
