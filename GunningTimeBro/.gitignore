@@ -28,3 +28,17 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+
+# Java class files
+*.class
+
+# Gradle/Maven
+/build/
+/target/
+
+# VS Code
+.vscode/
