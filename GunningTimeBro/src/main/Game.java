@@ -42,13 +42,6 @@ public class Game implements Runnable {
 
 
     private void initClasses() {
-
-        // Then spawn player on the ground
-        float spawnX = 3 * TILES_SIZE; // 3 tiles from left edge
-        float spawnY = findGroundY(spawnX); // Find ground at that X position
-
-        player = new Player(200, 100, (int) (64 * SCALE), (int) (40 * SCALE));
-        player.loadLvlData(LevelTileConfig.createLevelGrid());
         // INITIALIZE MAP first
         try {
             initMap();
@@ -56,17 +49,21 @@ public class Game implements Runnable {
             e.printStackTrace();
         }
 
+        // Then spawn player on the ground
+        float spawnX = 3 * TILES_SIZE; // 3 tiles from left edge
+        float spawnY = findGroundY(spawnX); // Find ground at that X position
+
+        player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
+        player.loadLvlData(LevelTileConfig.createLevelGrid());
     }
 
 
     // Helper method to find ground level
     private float findGroundY(float x) {
-        // The ground row in your level is row 9 (last row)
-        // Each row is TILES_SIZE pixels tall
-        // GAME_HEIGHT = 324 (from your TileMap. render baseY calculation)
+        // With baseY = 0, ground row 9 is at row * TILES_SIZE
+        // Player hitbox height is 15 * SCALE, so spawn just above ground
         int groundRow = 9; // Last row of your 10-row grid (0-indexed)
-        int rows = 10;
-        return 324 - (rows * TILES_SIZE) + (groundRow * TILES_SIZE) - (15 * SCALE);
+        return groundRow * TILES_SIZE - (15 * SCALE);
     }
 
     private void initMap() throws IOException {
@@ -78,9 +75,6 @@ public class Game implements Runnable {
         TileSet tileSet = LevelTileConfig.createTileSet();
         int[][] levelGrid = LevelTileConfig.createLevelGrid();
         tileMap = new TileMap(levelGrid, tileSet);
-
-        // Load collision data ONCE
-        player.loadLvlData(levelGrid);
     }
 
     private void startGameLoop() {

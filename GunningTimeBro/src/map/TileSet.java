@@ -2,7 +2,6 @@ package map;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.awt.Graphics2D;
 import java.io.InputStream;
