@@ -8,6 +8,8 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import main.Game;
+
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
 
@@ -31,8 +33,10 @@ public class GamePanel extends JPanel {
 
 
     private void setPanelSize() {
-        Dimension size = new Dimension(1280, 800);
+        Dimension size = new Dimension(Game.GAME_WIDTH, Game.GAME_HEIGHT);
         setPreferredSize(size);
+        System.out.println("size : " + Game.GAME_WIDTH + " : " + Game.GAME_HEIGHT);
+
     }
 
     @Override

@@ -2,6 +2,7 @@ package entity;
 
 import main.Game;
 import utilz.LoadSave;
+
 import static utilz.HelpMethods.*;
 
 import java.awt.*;
@@ -157,22 +158,21 @@ public class Player extends Entity {
         int spriteW = width;
         int spriteH = height;
 
+        // FIX: Removed the baseY calculation.
+        // We now draw exactly where the physics hitbox says we are.
+
         int drawX;
         int drawY = (int) (hitbox.y - yDrawOffset);
 
         if (flip) {
-            // hitbox.x là mép trái hitbox
-            // hitbox.width là độ rộng hitbox
-            // xDrawOffset = khoảng trống từ trái sprite đến trái hitbox khi nhìn sang phải
-            drawX = (int) (hitbox.x + hitbox.width + xDrawOffset); // mép phải sprite
+            drawX = (int) (hitbox.x + hitbox.width + xDrawOffset);
             g.drawImage(animations[playerAction][aniIndex],
                     drawX,
                     drawY,
-                    -spriteW,    // width âm để flip
+                    -spriteW,
                     spriteH,
                     null);
         } else {
-            // bình thường: dùng mép trái sprite
             drawX = (int) (hitbox.x - xDrawOffset);
             g.drawImage(animations[playerAction][aniIndex],
                     drawX,
@@ -182,8 +182,7 @@ public class Player extends Entity {
                     null);
         }
 
-//        // Vẽ hitbox để debug: KHÔNG dùng offset
-//        drawHitbox(g);
+        // Debug suggestion: drawHitbox(g);
     }
 
     private void loadAnimations() {
@@ -271,6 +270,7 @@ public class Player extends Entity {
     public void setFlip(boolean flip) {
         this.flip = flip;
     }
+
     public void setJump(boolean jump) {
         this.jump = jump;
     }

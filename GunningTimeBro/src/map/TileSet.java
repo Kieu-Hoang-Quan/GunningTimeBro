@@ -1,5 +1,7 @@
 package map;
 
+import main.Game;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -48,17 +50,19 @@ public class TileSet {
     public void drawTile(Graphics2D g2, int tileId, int x, int y) {
         if (tileId <= 0) return;
 
-        tileId--; 
+        tileId--;
 
         int col = tileId % cols;
         int row = tileId / cols;
 
-        int sx = col * tileSize;
+        int sx = col * tileSize;      // tileSize = 32, dùng cho source
         int sy = row * tileSize;
 
+        int destSize = Game.TILES_SIZE; // = 64, dùng cho world
+
         g2.drawImage(sheet,
-                x, y, x + tileSize, y + tileSize,
-                sx, sy, sx + tileSize, sy + tileSize,
+                x, y, x + destSize, y + destSize,   // kích thước vẽ 64x64
+                sx, sy, sx + tileSize, sy + tileSize, // cắt 32x32
                 null);
     }
 

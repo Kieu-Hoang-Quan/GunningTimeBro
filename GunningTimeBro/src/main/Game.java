@@ -28,6 +28,8 @@ public class Game implements Runnable {
     public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
     public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
     public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
+//    public final static int GAME_WIDTH = 576;
+//    public final static int GAME_HEIGHT = 324;
 
     //
     public Game() {
@@ -53,16 +55,16 @@ public class Game implements Runnable {
         float spawnX = 3 * TILES_SIZE; // 3 tiles from left edge
         float spawnY = findGroundY(spawnX); // Find ground at that X position
 
-        player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
+        player = new Player(0, 0, (int) (64 * SCALE), (int) (40 * SCALE));
         player.loadLvlData(LevelTileConfig.createLevelGrid());
     }
 
 
     // Helper method to find ground level
     private float findGroundY(float x) {
-        // With baseY = 0, ground row 9 is at row * TILES_SIZE
-        // Player hitbox height is 15 * SCALE, so spawn just above ground
-        int groundRow = 9; // Last row of your 10-row grid (0-indexed)
+        // In WORLD coordinates, ground row 9 is simply at row * TILES_SIZE
+        int groundRow = 9;
+        // Player hitbox height is 15 * SCALE, spawn just above ground tile
         return groundRow * TILES_SIZE - (15 * SCALE);
     }
 

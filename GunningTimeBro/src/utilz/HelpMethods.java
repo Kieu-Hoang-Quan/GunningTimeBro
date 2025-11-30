@@ -6,7 +6,7 @@ import main.Game;
 public class HelpMethods {
 
     public static boolean CanMoveHere(float x, float y, float width, float height, int[][] lvlData) {
-        return ! IsSolid(x, y, lvlData) &&
+        return !IsSolid(x, y, lvlData) &&
                 !IsSolid(x + width, y + height, lvlData) &&
                 !IsSolid(x + width, y, lvlData) &&
                 !IsSolid(x, y + height, lvlData);
@@ -16,33 +16,30 @@ public class HelpMethods {
         int rows = lvlData.length;
         int cols = lvlData[0].length;
 
-        // Calculate the actual map boundaries (baseY = 0 now)
-        int mapWidthPixels = cols * Game.TILES_SIZE;
+        int mapWidthPixels  = cols * Game.TILES_SIZE;
         int mapHeightPixels = rows * Game.TILES_SIZE;
 
-        // Check if out of horizontal bounds
+        // tường trái / phải
         if (x < 0 || x >= mapWidthPixels)
             return true;
 
-        // Check if out of vertical bounds (Y starts at 0)
-        if (y < 0 || y >= mapHeightPixels)
+        // trần
+        if (y < 0)
             return true;
 
-        // Convert world coordinates to grid coordinates
+        // rơi xuống dưới map: để false để player rơi tự do
+        if (y >= mapHeightPixels)
+            return false;
+
         int xIndex = (int) (x / Game.TILES_SIZE);
         int yIndex = (int) (y / Game.TILES_SIZE);
 
-        // Bounds check for array access
+        // ngoài grid thì coi như không có gạch
         if (yIndex < 0 || yIndex >= rows || xIndex < 0 || xIndex >= cols)
-            return true;
-
-        int value = lvlData[yIndex][xIndex];
-
-        // Tile 0 = empty/air (not solid)
-        if (value == 0)
             return false;
 
-        return true;  // Any non-zero tile is solid
+        int value = lvlData[yIndex][xIndex];
+        return value != 0; // 0 = air, khác 0 = solid
     }
 
     public static float GetEntityXPosNextToWall(Rectangle2D.Float hitbox, float xSpeed) {
@@ -58,7 +55,6 @@ public class HelpMethods {
     }
 
     public static float GetEntityYPosUnderRoofOrAboveFloor(Rectangle2D.Float hitbox, float airSpeed) {
-        // With baseY = 0, no offset needed
         int currentTile = (int) (hitbox.y / Game.TILES_SIZE);
 
         if (airSpeed > 0) {
@@ -73,9 +69,8 @@ public class HelpMethods {
     }
 
     public static boolean IsEntityOnFloor(Rectangle2D.Float hitbox, int[][] lvlData) {
-        // Check the pixel below bottom-left and bottom-right
-        if (! IsSolid(hitbox. x, hitbox.y + hitbox.height + 1, lvlData))
-            if (!IsSolid(hitbox.x + hitbox.width, hitbox.y + hitbox. height + 1, lvlData))
+        if (!IsSolid(hitbox.x, hitbox.y + hitbox.height + 1, lvlData))
+            if (!IsSolid(hitbox.x + hitbox.width, hitbox.y + hitbox.height + 1, lvlData))
                 return false;
 
         return true;
