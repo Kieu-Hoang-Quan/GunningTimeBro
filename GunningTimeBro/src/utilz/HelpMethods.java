@@ -16,25 +16,21 @@ public class HelpMethods {
         int rows = lvlData.length;
         int cols = lvlData[0].length;
 
-        // Calculate the actual map boundaries
+        // Calculate the actual map boundaries (baseY = 0 now)
         int mapWidthPixels = cols * Game.TILES_SIZE;
-        int mapHeightPixels = rows * Game. TILES_SIZE;
-
-        // Map starts at baseY
-        final int GAME_HEIGHT = 324;
-        int baseY = GAME_HEIGHT - mapHeightPixels;
+        int mapHeightPixels = rows * Game.TILES_SIZE;
 
         // Check if out of horizontal bounds
         if (x < 0 || x >= mapWidthPixels)
             return true;
 
-        // Check if out of vertical bounds (adjusted for baseY)
-        if (y < baseY || y >= GAME_HEIGHT)
+        // Check if out of vertical bounds (Y starts at 0)
+        if (y < 0 || y >= mapHeightPixels)
             return true;
 
         // Convert world coordinates to grid coordinates
         int xIndex = (int) (x / Game.TILES_SIZE);
-        int yIndex = (int) ((y - baseY) / Game. TILES_SIZE);  // Adjust for baseY!
+        int yIndex = (int) (y / Game.TILES_SIZE);
 
         // Bounds check for array access
         if (yIndex < 0 || yIndex >= rows || xIndex < 0 || xIndex >= cols)
@@ -61,23 +57,18 @@ public class HelpMethods {
             return currentTile * Game.TILES_SIZE;
     }
 
-    public static float GetEntityYPosUnderRoofOrAboveFloor(Rectangle2D. Float hitbox, float airSpeed) {
-        final int GAME_HEIGHT = 324;
-        int rows = 10;  // Your level has 10 rows
-        int mapHeightPixels = rows * Game. TILES_SIZE;
-        int baseY = GAME_HEIGHT - mapHeightPixels;
-
-        // Adjust hitbox. y for baseY before calculating tile
-        int currentTile = (int) ((hitbox.y - baseY) / Game.TILES_SIZE);
+    public static float GetEntityYPosUnderRoofOrAboveFloor(Rectangle2D.Float hitbox, float airSpeed) {
+        // With baseY = 0, no offset needed
+        int currentTile = (int) (hitbox.y / Game.TILES_SIZE);
 
         if (airSpeed > 0) {
             // Falling - touching floor
-            int tileYPos = baseY + currentTile * Game. TILES_SIZE;
+            int tileYPos = currentTile * Game.TILES_SIZE;
             int yOffset = (int) (Game.TILES_SIZE - hitbox.height);
             return tileYPos + yOffset - 1;
         } else {
             // Jumping - hitting ceiling
-            return baseY + currentTile * Game.TILES_SIZE;
+            return currentTile * Game.TILES_SIZE;
         }
     }
 

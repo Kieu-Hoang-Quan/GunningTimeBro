@@ -21,9 +21,7 @@ public class TileMap {
         int cols = grid[0].length;
         int tileSize = tileSet.getTileSize();
 
-        final int GAME_HEIGHT = 324;
-    
-        int baseY = GAME_HEIGHT - rows * tileSize;
+        int baseY = 0;
     
         int firstCol = Math.max(0, camX / tileSize);
         int lastCol  = Math.min(cols - 1, (camX + panelWidth) / tileSize + 1);
