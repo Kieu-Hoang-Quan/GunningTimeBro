@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.awt.Graphics2D;
+import java.io.InputStream;
 
 public class TileSet {
     private final int tileSize;
@@ -13,16 +14,36 @@ public class TileSet {
     private int rows;
 
     public TileSet(String filePath, int tileSize) throws IOException {
-        this.tileSize = tileSize;
+//        this.tileSize = tileSize;
+//
+//        File f = new File(filePath);
+//        System.out.println("[TileSet] Path:   " + f.getAbsolutePath());
+//        System.out.println("[TileSet] Exists? " + f.exists());
+//
+//        this.sheet = ImageIO.read(f);
+//
+//        this.cols = sheet.getWidth() / tileSize;
+//        this.rows = sheet.getHeight() / tileSize;
 
-        File f = new File(filePath);
-        System.out.println("[TileSet] Path:   " + f.getAbsolutePath());
-        System.out.println("[TileSet] Exists? " + f.exists());
 
-        this.sheet = ImageIO.read(f);
+        this. tileSize = tileSize;
 
-        this.cols = sheet.getWidth() / tileSize;
-        this.rows = sheet.getHeight() / tileSize;
+        InputStream is = getClass().getResourceAsStream("/" + filePath);
+
+        if (is == null) {
+            throw new IOException("Resource not found: " + filePath);
+        }
+
+        try {
+            this.sheet = ImageIO.read(is);
+            this.cols = sheet.getWidth() / tileSize;
+            this.rows = sheet.getHeight() / tileSize;
+
+            System.out.println("[TileSet] Loaded: " + filePath);
+            System.out.println("[TileSet] Size: " + cols + "x" + rows + " tiles");
+        } finally {
+            is.close();
+        }
     }
 
     public void drawTile(Graphics2D g2, int tileId, int x, int y) {

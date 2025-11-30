@@ -1,9 +1,10 @@
 package main;
 
-import Testing.LevelManager;
 import entity.Player;
+import map.*;
 
-import java.awt.Graphics;
+import java.awt.*;
+import java.io.IOException;
 
 public class Game implements Runnable {
 
@@ -14,9 +15,12 @@ public class Game implements Runnable {
     private final int UPS_SET = 200;
     private Player player;
 
-    private LevelManager levelManager;
 
-    //Testing
+    // ADD THESE MAP COMPONENTS
+    private BgManager bgManager;
+    private TileMap tileMap;
+    private int cameraX = 0;
+
     public final static int TILES_DEFAULT_SIZE = 32;
     public final static float SCALE = 2f;
     public final static int TILES_IN_WIDTH = 26;
@@ -24,7 +28,6 @@ public class Game implements Runnable {
     public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
     public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
     public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
-
 
     //
     public Game() {
@@ -40,11 +43,44 @@ public class Game implements Runnable {
 
     private void initClasses() {
 
-        levelManager = new LevelManager(this);
-        player = new Player(400, 400, (int) (64 * SCALE), (int) (40 * SCALE));
-        //Testing
-        player.loadLvlData(levelManager.getCurrentLevel().getLevelData());
-        //
+        // Then spawn player on the ground
+        float spawnX = 3 * TILES_SIZE; // 3 tiles from left edge
+        float spawnY = findGroundY(spawnX); // Find ground at that X position
+
+        player = new Player(200, 100, (int) (64 * SCALE), (int) (40 * SCALE));
+        player.loadLvlData(LevelTileConfig.createLevelGrid());
+        // INITIALIZE MAP first
+        try {
+            initMap();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    // Helper method to find ground level
+    private float findGroundY(float x) {
+        // The ground row in your level is row 9 (last row)
+        // Each row is TILES_SIZE pixels tall
+        // GAME_HEIGHT = 324 (from your TileMap. render baseY calculation)
+        int groundRow = 9; // Last row of your 10-row grid (0-indexed)
+        int rows = 10;
+        return 324 - (rows * TILES_SIZE) + (groundRow * TILES_SIZE) - (15 * SCALE);
+    }
+
+    private void initMap() throws IOException {
+        // Setup background layers
+        bgManager = new BgManager();
+        LevelBackgroundConfig.setupFactoryBackground(bgManager);
+
+        // Setup tile map
+        TileSet tileSet = LevelTileConfig.createTileSet();
+        int[][] levelGrid = LevelTileConfig.createLevelGrid();
+        tileMap = new TileMap(levelGrid, tileSet);
+
+        // Load collision data ONCE
+        player.loadLvlData(levelGrid);
     }
 
     private void startGameLoop() {
@@ -53,13 +89,32 @@ public class Game implements Runnable {
     }
 
     public void update() {
-        levelManager.update();
+//        levelManager.update();
         player.update();
+        updateCamera();
+    }
+
+    private void updateCamera() {
+        // Center camera on player
+        cameraX = (int) (player.getHitbox().x - GAME_WIDTH / 2);
+
+        // Clamp camera to map bounds
+        cameraX = Math.max(0, cameraX);
+        cameraX = Math.min(cameraX, tileMap.getMapWidthPixels() - GAME_WIDTH);
     }
 
     public void render(Graphics g) {
-        levelManager.draw(g);
+        Graphics2D g2 = (Graphics2D) g;
+
+        // Render background (parallax)
+        bgManager.render(g2, cameraX, GAME_WIDTH, GAME_HEIGHT);
+
+        // Render tile map
+        tileMap.render(g2, cameraX, GAME_WIDTH, GAME_HEIGHT);
+        // Render player (adjust position based on camera)
+        g2.translate(-cameraX, 0);
         player.render(g);
+        g2.translate(cameraX, 0);
     }
 
     @Override

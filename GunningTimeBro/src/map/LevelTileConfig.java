@@ -8,7 +8,7 @@ public class LevelTileConfig {
 
     public static TileSet createTileSet() throws IOException {
    
-        String filePath = "res/Map/tiles/Tiles.png";  
+        String filePath = "tiles/Tiles.png";
 
         return new TileSet(filePath, TILE_SIZE);
     }
