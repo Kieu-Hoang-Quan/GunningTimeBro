@@ -1,16 +1,14 @@
 package gamestates;
 
-import java.awt.Graphics;
+public enum GameState {
+    MENU,
+    PLAYING,
+    OPTIONS,
+    QUIT;
 
-public abstract class GameState {
+    public static GameState currentState = MENU;
 
-    protected GameStateManager gsm;
-
-    public GameState(GameStateManager gsm) {
-        this.gsm = gsm;
+    public static void changeState(GameState newState) {
+        currentState = newState;
     }
-
-    public abstract void update();
-    public abstract void render(Graphics g);
-    public abstract void handleInput();
 }

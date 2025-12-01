@@ -3,9 +3,8 @@ package inputs;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import gamestates.GameState;
 import main.GamePanel;
-
-import static utilz.Constants.Directions.*;
 
 public class KeyboardInputs implements KeyListener {
 
@@ -13,46 +12,59 @@ public class KeyboardInputs implements KeyListener {
 
     public KeyboardInputs(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W:
-                gamePanel.getGame().getPlayer().setUp(false);
-                break;
-            case KeyEvent.VK_A:
-                gamePanel.getGame().getPlayer().setLeft(false);
-                break;
-            case KeyEvent.VK_S:
-                gamePanel.getGame().getPlayer().setDown(false);
-                break;
-            case KeyEvent.VK_D:
-                gamePanel.getGame().getPlayer().setRight(false);
-                break;
-        }
+        gamePanel.setFocusable(true);
+        gamePanel.requestFocusInWindow();
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W:
-                gamePanel.getGame().getPlayer().setUp(true);
+        int code = e.getKeyCode();
+
+        switch (GameState.currentState) {
+            case MENU:
+                gamePanel.getGame().getMenu().keyPressed(code);
                 break;
-            case KeyEvent.VK_A:
-                gamePanel.getGame().getPlayer().setLeft(true);
+
+            case PLAYING:
+                gamePanel.getGame().getPlaying().keyPressed(code);
                 break;
-            case KeyEvent.VK_S:
-                gamePanel.getGame().getPlayer().setDown(true);
+
+            case OPTIONS:
+                // Nếu chưa có Options, để trống
                 break;
-            case KeyEvent.VK_D:
-                gamePanel.getGame().getPlayer().setRight(true);
+
+            case QUIT:
+                System.exit(0);
+                break;
+
+            default:
                 break;
         }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        int code = e.getKeyCode();
+
+        switch (GameState.currentState) {
+            case MENU:
+                gamePanel.getGame().getMenu().keyReleased(code);
+                break;
+
+            case PLAYING:
+                gamePanel.getGame().getPlaying().keyReleased(code);
+                break;
+
+            case OPTIONS:
+                // Nếu có Options, xử lý ở đây
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
     }
 }
