@@ -48,7 +48,7 @@ public class LevelTileConfig {
         fillRange(grid, platRow1, 92, 92, P);
         fillRange(grid, platRow1, 94, 94, P);
 
-        fillRange(grid, platRow2, 22, 27, P);
+        fillRange(grid, platRow2, 21, 27, P);
         fillRange(grid, platRow2, 65, 75, P);
         fillRange(grid, platRow2, 96, 97, P);
         fillRange(grid, platRow2, 99, 100, P);
