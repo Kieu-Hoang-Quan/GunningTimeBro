@@ -1,9 +1,12 @@
 package main;
 
 import entity.Player;
+import entity.Entity;
+
+import gamestates.*;
 import map.*;
 
-import java.awt.*;
+import java.awt.Graphics;
 import java.io.IOException;
 
 public class Game implements Runnable {
@@ -13,7 +16,10 @@ public class Game implements Runnable {
     private Thread gameThread;
     private final int FPS_SET = 120;
     private final int UPS_SET = 200;
+
     private Player player;
+    private Menu menu;
+    private Playing playing;
 
 
     // ADD THESE MAP COMPONENTS
@@ -35,6 +41,7 @@ public class Game implements Runnable {
     public Game() {
         initClasses();
 
+        // Khởi tạo panel & window
         gamePanel = new GamePanel(this);
         gameWindow = new GameWindow(gamePanel);
         gamePanel.requestFocus();
@@ -42,6 +49,10 @@ public class Game implements Runnable {
         startGameLoop();
     }
 
+    // Getter cho các state & player
+    public Player getPlayer() { return player; }
+    public Menu getMenu() { return menu; }
+    public Playing getPlaying() { return playing; }
 
     private void initClasses() {
         // INITIALIZE MAP first
@@ -85,32 +96,34 @@ public class Game implements Runnable {
     }
 
     public void update() {
-//        levelManager.update();
-        player.update();
-        updateCamera();
-    }
-
-    private void updateCamera() {
-        // Center camera on player
-        cameraX = (int) (player.getHitbox().x - GAME_WIDTH / 2);
-
-        // Clamp camera to map bounds
-        cameraX = Math.max(0, cameraX);
-        cameraX = Math.min(cameraX, tileMap.getMapWidthPixels() - GAME_WIDTH);
+        switch (GameState.currentState) {
+            case MENU:
+                menu.update();
+                break;
+            case PLAYING:
+                playing.update();
+                break;
+            default:
+                break;
+        }
     }
 
     public void render(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
+        switch (GameState.currentState) {
+            case MENU:
+                menu.draw(g);
+                break;
+            case PLAYING:
+                playing.draw(g);
+                player.render(g);
+                break;
+            default:
+                break;
+        }
+    }
 
-        // Render background (parallax)
-        bgManager.render(g2, cameraX, GAME_WIDTH, GAME_HEIGHT);
-
-        // Render tile map
-        tileMap.render(g2, cameraX, GAME_WIDTH, GAME_HEIGHT);
-        // Render player (adjust position based on camera)
-        g2.translate(-cameraX, 0);
-        player.render(g);
-        g2.translate(cameraX, 0);
+    public void windowFocusLost() {
+        player.resetDirBooleans();
     }
 
     @Override
@@ -158,12 +171,6 @@ public class Game implements Runnable {
 
     }
 
-    public void windowFocusLost() {
-        player.resetDirBooleans();
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
+    // Getter cho GamePanel nếu muốn Menu/Playing truy cập
+    public GamePanel getGamePanel() { return gamePanel; }
 }

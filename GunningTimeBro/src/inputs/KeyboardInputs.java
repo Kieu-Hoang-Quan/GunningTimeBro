@@ -3,9 +3,8 @@ package inputs;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import gamestates.*;
 import main.GamePanel;
-
-import static utilz.Constants.Directions.*;
 
 public class KeyboardInputs implements KeyListener {
 
@@ -13,52 +12,57 @@ public class KeyboardInputs implements KeyListener {
 
     public KeyboardInputs(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
+        gamePanel.setFocusable(true);
+        gamePanel.requestFocusInWindow();
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
-    }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W:
-            case KeyEvent.VK_SPACE:
-                gamePanel.getGame().getPlayer().setJump(false);
-                break;
-            case KeyEvent.VK_A:
-                gamePanel.getGame().getPlayer().setLeft(false);
-                break;
-            case KeyEvent.VK_S:
-                gamePanel.getGame().getPlayer().setDown(false);
-                break;
-            case KeyEvent.VK_D:
-                gamePanel.getGame().getPlayer().setRight(false);
-                break;
-        }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W:
-            case KeyEvent.VK_SPACE:
-                gamePanel.getGame().getPlayer().setJump(true);
+        int code = e.getKeyCode();
+        switch (GameState.currentState) {
+            case MENU:
+                gamePanel.getGame().getMenu().keyPressed(code);
                 break;
-            case KeyEvent.VK_A:
-                gamePanel.getGame().getPlayer().setLeft(true);
-                gamePanel.getGame().getPlayer().setFlip(true);
+
+            case PLAYING:
+                gamePanel.getGame().getPlaying().keyPressed(code);
                 break;
-            case KeyEvent.VK_S:
-                gamePanel.getGame().getPlayer().setDown(true);
+
+            case OPTIONS:
+                // Nếu chưa có Options, để trống
                 break;
-            case KeyEvent.VK_D:
-                gamePanel.getGame().getPlayer().setRight(true);
-                gamePanel.getGame().getPlayer().setFlip(false);
+
+            case QUIT:
+                System.exit(0);
                 break;
-            case KeyEvent.VK_SHIFT:
-                gamePanel.getGame().getPlayer().setAttacking(true);
+
+            default:
+                break;
+        }    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        int code = e.getKeyCode();
+
+        switch (GameState.currentState) {
+            case MENU:
+                gamePanel.getGame().getMenu().keyReleased(code);
+                break;
+
+            case PLAYING:
+                gamePanel.getGame().getPlaying().keyReleased(code);
+                break;
+
+            case OPTIONS:
+                // Nếu có Options, xử lý ở đây
+                break;
+
+            default:
                 break;
         }
     }

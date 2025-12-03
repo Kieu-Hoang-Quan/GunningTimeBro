@@ -8,8 +8,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import main.Game;
-
+import gamestates.GameState;
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
 
@@ -30,22 +29,28 @@ public class GamePanel extends JPanel {
         setPanelSize();
         addKeyListener(new KeyboardInputs(this));
     }
-
-
-    private void setPanelSize() {
-        Dimension size = new Dimension(Game.GAME_WIDTH, Game.GAME_HEIGHT);
-        setPreferredSize(size);
-        System.out.println("size : " + Game.GAME_WIDTH + " : " + Game.GAME_HEIGHT);
-
+    private void setPanelSize(){
+        setPreferredSize(new Dimension(Game.GAME_WIDTH, Game.GAME_HEIGHT));
+        this.addKeyListener(new KeyboardInputs(this));
+        this.setFocusable(true);
+        this.requestFocusInWindow();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         game.render(g);
-    }
 
-    public Game getGame() {
-        return game;
+        switch (GameState.currentState) {
+            case MENU:
+                game.getMenu().draw(g);
+                break;
+            case PLAYING:
+                game.getPlaying().draw(g);
+                break;
+            case OPTIONS:
+                break;
+        }
     }
+    public Game getGame() { return game; }
 }
