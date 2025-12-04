@@ -1,6 +1,9 @@
 package main;
 
+import world.*;
 import entity.Player;
+import gamestates.*;
+import gamestates.Menu;
 import map.*;
 
 import java.awt.*;
@@ -11,27 +14,27 @@ public class Game implements Runnable {
     private GameWindow gameWindow;
     private GamePanel gamePanel;
     private Thread gameThread;
+
     private final int FPS_SET = 120;
     private final int UPS_SET = 200;
+
     private Player player;
+    private Menu menu;
+    private Playing playing;
+    private World world;
+
+    // ✔ StateManager mới
+    private GameStateManager gsm;
 
 
-    // ADD THESE MAP COMPONENTS
-    private BgManager bgManager;
-    private TileMap tileMap;
-    private int cameraX = 0;
+    public static final int TILES_DEFAULT_SIZE = 32;
+    public static final float SCALE = 2f;
+    public static final int TILES_IN_WIDTH = 26;
+    public static final int TILES_IN_HEIGHT = 14;
+    public static final int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
+    public static final int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
+    public static final int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 
-    public final static int TILES_DEFAULT_SIZE = 32;
-    public final static float SCALE = 2f;
-    public final static int TILES_IN_WIDTH = 26;
-    public final static int TILES_IN_HEIGHT = 14;
-    public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
-    public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
-    public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
-//    public final static int GAME_WIDTH = 576;
-//    public final static int GAME_HEIGHT = 324;
-
-    //
     public Game() {
         initClasses();
 
@@ -42,76 +45,70 @@ public class Game implements Runnable {
         startGameLoop();
     }
 
+    // Getter cho các state & player
+    public Player getPlayer() {
+        return player;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public Playing getPlaying() {
+        return playing;
+    }
+
+    public GameStateManager getStateManager() {
+        return gsm;
+    }
+
 
     private void initClasses() {
-        // INITIALIZE MAP first
+        // LOAD WORLD
         try {
-            initMap();
+            world = new World();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Then spawn player on the ground
-        float spawnX = 3 * TILES_SIZE; // 3 tiles from left edge
-        float spawnY = findGroundY(spawnX); // Find ground at that X position
+        // PLAYER
+        float spawnX = 3 * TILES_SIZE;
+        float spawnY = world.findGroundY(spawnX);
 
-        player = new Player(0, 0, (int) (64 * SCALE), (int) (40 * SCALE));
+        player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
+
+        // STATES
+        gsm = new GameStateManager();
+
+        menu = new Menu(this);
+        playing = new Playing(this, world);
         player.loadLvlData(LevelTileConfig.createLevelGrid());
+
+
+        // State mặc định
+        gsm.setState(menu);
     }
 
-
-    // Helper method to find ground level
-    private float findGroundY(float x) {
-        // In WORLD coordinates, ground row 9 is simply at row * TILES_SIZE
-        int groundRow = 9;
-        // Player hitbox height is 15 * SCALE, spawn just above ground tile
-        return groundRow * TILES_SIZE - (15 * SCALE);
-    }
-
-    private void initMap() throws IOException {
-        // Setup background layers
-        bgManager = new BgManager();
-        LevelBackgroundConfig.setupFactoryBackground(bgManager);
-
-        // Setup tile map
-        TileSet tileSet = LevelTileConfig.createTileSet();
-        int[][] levelGrid = LevelTileConfig.createLevelGrid();
-        tileMap = new TileMap(levelGrid, tileSet);
-    }
 
     private void startGameLoop() {
         gameThread = new Thread(this);
         gameThread.start();
     }
 
+
     public void update() {
-//        levelManager.update();
-        player.update();
-        updateCamera();
+        gsm.update();
     }
 
-    private void updateCamera() {
-        // Center camera on player
-        cameraX = (int) (player.getHitbox().x - GAME_WIDTH / 2);
-
-        // Clamp camera to map bounds
-        cameraX = Math.max(0, cameraX);
-        cameraX = Math.min(cameraX, tileMap.getMapWidthPixels() - GAME_WIDTH);
+    public void render(Graphics2D g) {
+        gsm.render(g);
     }
 
-    public void render(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
 
-        // Render background (parallax)
-        bgManager.render(g2, cameraX, GAME_WIDTH, GAME_HEIGHT);
-
-        // Render tile map
-        tileMap.render(g2, cameraX, GAME_WIDTH, GAME_HEIGHT);
-        // Render player (adjust position based on camera)
-        g2.translate(-cameraX, 0);
-        player.render(g);
-        g2.translate(cameraX, 0);
+    public void windowFocusLost() {
+        player.resetDirBooleans();
     }
+
 
     @Override
     public void run() {
@@ -133,6 +130,7 @@ public class Game implements Runnable {
 
             deltaU += (currentTime - previousTime) / timePerUpdate;
             deltaF += (currentTime - previousTime) / timePerFrame;
+
             previousTime = currentTime;
 
             if (deltaU >= 1) {
@@ -148,22 +146,15 @@ public class Game implements Runnable {
             }
 
             if (System.currentTimeMillis() - lastCheck >= 1000) {
-                lastCheck = System.currentTimeMillis();
                 System.out.println("FPS: " + frames + " | UPS: " + updates);
                 frames = 0;
                 updates = 0;
-
+                lastCheck = System.currentTimeMillis();
             }
         }
-
     }
 
-    public void windowFocusLost() {
-        player.resetDirBooleans();
+    public GamePanel getGamePanel() {
+        return gamePanel;
     }
-
-    public Player getPlayer() {
-        return player;
-    }
-
 }

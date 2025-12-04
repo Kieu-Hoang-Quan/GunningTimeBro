@@ -6,6 +6,7 @@ import utilz.LoadSave;
 import static utilz.HelpMethods.*;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import static utilz.HelpMethods.CanMoveHere;
@@ -20,7 +21,6 @@ public class Player extends Entity {
     private float playerSpeed = 3.0f;
     private boolean flip = false;
 
-    //Testing
     private int[][] lvlData;
     private float xDrawOffset = 21 * Game.SCALE;
     private float yDrawOffset = 25 * Game.SCALE;
@@ -154,36 +154,37 @@ public class Player extends Entity {
         aniIndex = 0;
     }
 
-    public void render(Graphics g) {
+    public void render(Graphics g, int camX) {
         int spriteW = width;
         int spriteH = height;
 
-        // FIX: Removed the baseY calculation.
-        // We now draw exactly where the physics hitbox says we are.
-
-        int drawX;
         int drawY = (int) (hitbox.y - yDrawOffset);
 
         if (flip) {
-            drawX = (int) (hitbox.x + hitbox.width + xDrawOffset);
+            // toạ độ world
+            int drawXWorld = (int) (hitbox.x + hitbox.width + xDrawOffset);
+            // trừ camera ra để ra toạ độ màn hình
+            int screenX = drawXWorld - camX;
+
             g.drawImage(animations[playerAction][aniIndex],
-                    drawX,
+                    screenX,
                     drawY,
                     -spriteW,
                     spriteH,
                     null);
         } else {
-            drawX = (int) (hitbox.x - xDrawOffset);
+            int drawXWorld = (int) (hitbox.x - xDrawOffset);
+            int screenX = drawXWorld - camX;
+
             g.drawImage(animations[playerAction][aniIndex],
-                    drawX,
+                    screenX,
                     drawY,
                     spriteW,
                     spriteH,
                     null);
         }
-
-        // Debug suggestion: drawHitbox(g);
     }
+
 
     private void loadAnimations() {
 
@@ -274,4 +275,8 @@ public class Player extends Entity {
     public void setJump(boolean jump) {
         this.jump = jump;
     }
+    public Rectangle2D.Float getHitbox() {
+        return hitbox;
+    }
+
 }

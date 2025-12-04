@@ -4,7 +4,7 @@ import map.TileSet;
 
 import java.awt.*;
 
-public class TileMap {
+public class    TileMap {
 
     private final int[][] grid;
     private final TileSet tileSet;
