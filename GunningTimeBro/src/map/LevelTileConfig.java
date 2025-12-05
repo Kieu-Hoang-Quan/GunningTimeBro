@@ -13,8 +13,8 @@ public class LevelTileConfig {
 
     public static int[][] createLevelGrid() {
         // CHANGED: Increased rows to 14 to fill more screen vertical space
-        int rows = 14;
-        int cols = 100;
+        int rows = 10;
+        int cols = 360;
         int[][] grid = new int[rows][cols];
 
         final int G = 73;    // ground tile
@@ -54,7 +54,6 @@ public class LevelTileConfig {
         fillRange(grid, platRow1, 134, 155, P);
         fillRange(grid, platRow1,213, 216, P);
         fillRange(grid, platRow1, 235, 238, P);
-
         fillRange(grid, platRow2, 21, 27, P);
         fillRange(grid, platRow2, 65, 75, P);
         fillRange(grid, platRow2, 96, 97, P);
@@ -74,6 +73,7 @@ public class LevelTileConfig {
         fillRange(grid, platRow3, 225, 227, P);
         
         // 4. Một số "bục" nhỏ kiểu bậc thang
+
         fillRange(grid, groundRow - 1, 5, 7, G);
         fillRange(grid, groundRow - 2, 6, 7, G);
 
@@ -117,7 +117,7 @@ public class LevelTileConfig {
         fillRange(grid, groundRow - 2, 251, 252, G);
         fillRange(grid, groundRow - 1, 273, 275, G);
         fillRange(grid, groundRow - 2, 273, 275, G); 
-        
+       
         return grid;
     }
 

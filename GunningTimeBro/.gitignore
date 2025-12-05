@@ -1,30 +1,53 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-.kotlin
+###############################
+# General Java Ignore
+###############################
+*.class
+*.log
+*.jar
+*.war
+*.ear
 
-### Eclipse ###
+###############################
+# IntelliJ IDEA
+###############################
+.idea/
+*.iml
+out/
+
+###############################
+# VS Code
+###############################
+.vscode/
+bin/
+
+###############################
+# Eclipse (optional, safe)
+###############################
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### NetBeans ###
+###############################
+# NetBeans
+###############################
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
+###############################
+# Build directories
+###############################
+build/
+target/
 
-### Mac OS ###
+###############################
+# OS junk
+###############################
 .DS_Store
+Thumbs.db

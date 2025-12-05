@@ -1,5 +1,8 @@
 package utilz;
 
+import main.Game;
+import java.awt.Color;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,13 +11,15 @@ import javax.imageio.ImageIO;
 
 public class LoadSave {
 
-    public static final String PLAYER_IDLE = "Idle1.png";
-    public static final String PLAYER_RUN = "Run1.png";
-    public static final String PLAYER_HIT = "Biker_attack1.png";
+    public static final String PLAYER_IDLE = "Player/Idle1.png";
+    public static final String PLAYER_RUN = "Player/Run1.png";
+    public static final String PLAYER_HIT = "Player/Biker_attack1.png";
+    public static final String PLAYER_JUMP = "Player/Jump1.png";
+
 
     public static BufferedImage GetSpriteAtlas(String fileName) {
         BufferedImage img = null;
-        InputStream is = LoadSave.class.getResourceAsStream("/Player/" + fileName);
+        InputStream is = LoadSave.class.getResourceAsStream("/" + fileName);
         try {
             img = ImageIO.read(is);
 
@@ -35,4 +40,5 @@ public class LoadSave {
         // Transparent placeholder to prevent crashes
         return img;
     }
+
 }

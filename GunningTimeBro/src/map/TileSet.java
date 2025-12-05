@@ -1,10 +1,12 @@
 package map;
 
+import main.Game;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.awt.Graphics2D;
+import java.io.InputStream;
 
 public class TileSet {
     private final int tileSize;
@@ -13,31 +15,41 @@ public class TileSet {
     private int rows;
 
     public TileSet(String filePath, int tileSize) throws IOException {
-        this.tileSize = tileSize;
+        this. tileSize = tileSize;
 
-        File f = new File(filePath);
-        System.out.println("[TileSet] Path:   " + f.getAbsolutePath());
-        System.out.println("[TileSet] Exists? " + f.exists());
+        InputStream is = getClass().getResourceAsStream("/" + filePath);
 
-        this.sheet = ImageIO.read(f);
+        if (is == null) {
+            throw new IOException("Resource not found: " + filePath);
+        }
 
-        this.cols = sheet.getWidth() / tileSize;
-        this.rows = sheet.getHeight() / tileSize;
+        try {
+            this.sheet = ImageIO.read(is);
+            this.cols = sheet.getWidth() / tileSize;
+            this.rows = sheet.getHeight() / tileSize;
+
+            System.out.println("[TileSet] Loaded: " + filePath);
+            System.out.println("[TileSet] Size: " + cols + "x" + rows + " tiles");
+        } finally {
+            is.close();
+        }
     }
 
     public void drawTile(Graphics2D g2, int tileId, int x, int y) {
         if (tileId <= 0) return;
 
-        tileId--; 
+        tileId--;
 
         int col = tileId % cols;
         int row = tileId / cols;
 
-        int sx = col * tileSize;
+        int sx = col * tileSize;      // tileSize = 32
         int sy = row * tileSize;
 
+        int destSize = Game.TILES_SIZE; // = 64, dùng cho world
+
         g2.drawImage(sheet,
-                x, y, x + tileSize, y + tileSize,
+                x, y, x + destSize, y + destSize,
                 sx, sy, sx + tileSize, sy + tileSize,
                 null);
     }

@@ -1,10 +1,12 @@
 package map;
+import main.Game;
+import map.TileSet;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 
-public class TileMap {
+public class    TileMap {
 
-    private final int[][] grid;   
+    private final int[][] grid;
     private final TileSet tileSet;
 
     public TileMap(int[][] grid, TileSet tileSet) {
@@ -13,30 +15,29 @@ public class TileMap {
     }
 
     public int getMapWidthPixels() {
-        return grid[0].length * tileSet.getTileSize();
+        // dùng TILE_SIZE trong world (64), không dùng 32 trong tileset
+        return grid[0].length * Game.TILES_SIZE;
     }
 
     public void render(Graphics2D g2, int camX, int panelWidth, int panelHeight) {
         int rows = grid.length;
         int cols = grid[0].length;
-        int tileSize = tileSet.getTileSize();
+        int tileSizeWorld = Game.TILES_SIZE;
 
-        final int GAME_HEIGHT = 324;
-    
-        int baseY = GAME_HEIGHT - rows * tileSize;
-    
-        int firstCol = Math.max(0, camX / tileSize);
-        int lastCol  = Math.min(cols - 1, (camX + panelWidth) / tileSize + 1);
+        int firstCol = Math.max(0, camX / tileSizeWorld);
+        int lastCol  = Math.min(cols - 1, (camX + panelWidth) / tileSizeWorld + 1);
 
         for (int r = 0; r < rows; r++) {
-            for (int c = firstCol; c <= lastCol; c++) {  
+            for (int c = firstCol; c <= lastCol; c++) {
                 int tileId = grid[r][c];
                 if (tileId == 0) continue;
-        
-                int worldX  = c * tileSize;
+
+                int worldX = c * tileSizeWorld;
+                int worldY = r * tileSizeWorld;
+
                 int screenX = worldX - camX;
-                int screenY = baseY + r * tileSize;
-        
+                int screenY = worldY;
+
                 tileSet.drawTile(g2, tileId, screenX, screenY);
             }
         }
