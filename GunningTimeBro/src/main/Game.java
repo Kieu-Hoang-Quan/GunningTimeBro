@@ -73,8 +73,7 @@ public class Game implements Runnable {
 
         // PLAYER
         float spawnX = 3 * TILES_SIZE;
-        float spawnY = world.findGroundY(spawnX);
-
+        float spawnY = 300;
         player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
 
         // STATES

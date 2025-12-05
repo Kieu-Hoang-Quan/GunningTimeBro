@@ -31,10 +31,4 @@ public class World {
     public int[][] getLevelGrid() {
         return levelGrid;
     }
-
-    // Logic spawn dưới mặt đất: move từ Game sang đây
-    public float findGroundY(float x) {
-        int groundRow = 9;
-        return groundRow * Game.TILES_SIZE - (15 * Game.SCALE);
-    }
 }

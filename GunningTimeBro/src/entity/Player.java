@@ -44,7 +44,6 @@ public class Player extends Entity {
         setAnimation();
     }
 
-    //Testing
     public void loadLvlData(int[][] lvlData) {
         this.lvlData = lvlData;
         if (!IsEntityOnFloor(hitbox, lvlData))
@@ -219,7 +218,7 @@ public class Player extends Entity {
         }
 
         // FALLING: Re-use the JUMP animation frames for FALLING
-        animations[FALLING] = animations[JUMP]; // <--- ADD THIS LINE
+        animations[FALLING] = animations[JUMP];
     }
 
 

@@ -140,12 +140,12 @@ public class Menu extends State {
 
     @Override
     public void keyPressed(int code) {
-        if (code == KeyEvent.VK_UP) {
+        if (code == KeyEvent.VK_UP || code == KeyEvent.VK_W) {
             currentSelection--;
             if (currentSelection < 0) currentSelection = options.length - 1;
         }
 
-        if (code == KeyEvent.VK_DOWN) {
+        if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) {
             currentSelection++;
             if (currentSelection >= options.length) currentSelection = 0;
         }

@@ -15,18 +15,6 @@ public class TileSet {
     private int rows;
 
     public TileSet(String filePath, int tileSize) throws IOException {
-//        this.tileSize = tileSize;
-//
-//        File f = new File(filePath);
-//        System.out.println("[TileSet] Path:   " + f.getAbsolutePath());
-//        System.out.println("[TileSet] Exists? " + f.exists());
-//
-//        this.sheet = ImageIO.read(f);
-//
-//        this.cols = sheet.getWidth() / tileSize;
-//        this.rows = sheet.getHeight() / tileSize;
-
-
         this. tileSize = tileSize;
 
         InputStream is = getClass().getResourceAsStream("/" + filePath);
@@ -55,14 +43,14 @@ public class TileSet {
         int col = tileId % cols;
         int row = tileId / cols;
 
-        int sx = col * tileSize;      // tileSize = 32, dùng cho source
+        int sx = col * tileSize;      // tileSize = 32
         int sy = row * tileSize;
 
         int destSize = Game.TILES_SIZE; // = 64, dùng cho world
 
         g2.drawImage(sheet,
-                x, y, x + destSize, y + destSize,   // kích thước vẽ 64x64
-                sx, sy, sx + tileSize, sy + tileSize, // cắt 32x32
+                x, y, x + destSize, y + destSize,
+                sx, sy, sx + tileSize, sy + tileSize,
                 null);
     }
 

@@ -53,6 +53,7 @@ public class Playing extends State {
                 break;
 
             case KeyEvent.VK_W:
+            case KeyEvent.VK_UP:
             case KeyEvent.VK_SPACE:
                 game.getPlayer().setJump(true);
                 break;
@@ -62,14 +63,18 @@ public class Playing extends State {
                 break;
 
             case KeyEvent.VK_A:
+            case KeyEvent.VK_LEFT:
                 game.getPlayer().setLeft(true);
                 game.getPlayer().setFlip(true);
                 break;
 
             case KeyEvent.VK_D:
+            case KeyEvent.VK_RIGHT:
                 game.getPlayer().setRight(true);
                 game.getPlayer().setFlip(false);
                 break;
+            case KeyEvent.VK_J:
+                game.getPlayer().setAttacking(true);
         }
     }
 
@@ -77,6 +82,7 @@ public class Playing extends State {
     public void keyReleased(int code) {
         switch (code) {
             case KeyEvent.VK_W:
+            case KeyEvent.VK_UP:
             case KeyEvent.VK_SPACE:
                 game.getPlayer().setJump(false);
                 break;
@@ -86,10 +92,12 @@ public class Playing extends State {
                 break;
 
             case KeyEvent.VK_A:
+            case KeyEvent.VK_LEFT:
                 game.getPlayer().setLeft(false);
                 break;
 
             case KeyEvent.VK_D:
+            case KeyEvent.VK_RIGHT:
                 game.getPlayer().setRight(false);
                 break;
         }

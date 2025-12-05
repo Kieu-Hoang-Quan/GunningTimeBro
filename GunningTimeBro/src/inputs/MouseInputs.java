@@ -19,11 +19,6 @@ public class MouseInputs extends MouseAdapter {
         int mouseX = e.getX();
         int mouseY = e.getY();
 
-        // TODO: xử lý click vào Menu hoặc Gameplay
-        // Ví dụ:
-        // if (GameState.currentState == GameState.MENU) {
-        //     gamePanel.getGame().getMenu().handleMouseClick(mouseX, mouseY);
-        // }
     }
 
     @Override
@@ -31,11 +26,9 @@ public class MouseInputs extends MouseAdapter {
         int mouseX = e.getX();
         int mouseY = e.getY();
 
-        // TODO: xử lý hover trên Menu buttons
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO: nếu muốn
     }
 }
