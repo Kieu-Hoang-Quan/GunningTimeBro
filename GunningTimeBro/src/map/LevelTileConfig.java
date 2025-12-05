@@ -37,11 +37,14 @@ public class LevelTileConfig {
         clearRange(grid, groundRow, 165, 185); // hố 7
 
         // 3. Thêm platform ở trên cao
-        
+
+        int platRow0 = groundRow - 1; // thấp nhất
         int platRow1 = groundRow - 3; // cao vừa phải
         int platRow2 = groundRow - 5; // cao hơn
         int platRow3 = groundRow - 7; // cao nhất
 
+        fillRange(grid, platRow0, 11, 13, P);
+        
         fillRange(grid, platRow1, 11, 19, P);
         fillRange(grid, platRow1, 33, 40, P);
         fillRange(grid, platRow1, 57, 62, P);
