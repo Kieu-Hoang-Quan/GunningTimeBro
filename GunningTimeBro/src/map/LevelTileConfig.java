@@ -13,8 +13,8 @@ public class LevelTileConfig {
 
     public static int[][] createLevelGrid() {
         // CHANGED: Increased rows to 14 to fill more screen vertical space
-        int rows = 14;
-        int cols = 100;
+        int rows = 10;
+        int cols = 360;
         int[][] grid = new int[rows][cols];
 
         final int G = 73;    // ground tile
