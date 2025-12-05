@@ -13,8 +13,8 @@ public class LevelTileConfig {
 
     public static int[][] createLevelGrid() {
         // CHANGED: Increased rows to 14 to fill more screen vertical space
-        int rows = 10;
-        int cols = 360;
+        int rows = 14;
+        int cols = 100;
         int[][] grid = new int[rows][cols];
 
         final int G = 73;    // ground tile
@@ -35,16 +35,16 @@ public class LevelTileConfig {
         clearRange(grid, groundRow, 90, 115); // hố 5
         clearRange(grid, groundRow, 118, 119); // hố 6
         clearRange(grid, groundRow, 165, 185); // hố 7
+        clearRange(grid, groundRow, 210, 240); // hố 8
+        clearRange(grid, groundRow, 242, 245); // hố 9
+        clearRange(grid, groundRow, 253, 272); // hố 10 
 
         // 3. Thêm platform ở trên cao
-
-        int platRow0 = groundRow - 1; // thấp nhất
+        
         int platRow1 = groundRow - 3; // cao vừa phải
         int platRow2 = groundRow - 5; // cao hơn
         int platRow3 = groundRow - 7; // cao nhất
 
-        fillRange(grid, platRow0, 11, 13, P);
-        
         fillRange(grid, platRow1, 11, 19, P);
         fillRange(grid, platRow1, 33, 40, P);
         fillRange(grid, platRow1, 57, 62, P);
@@ -52,6 +52,8 @@ public class LevelTileConfig {
         fillRange(grid, platRow1, 92, 92, P);
         fillRange(grid, platRow1, 94, 94, P);
         fillRange(grid, platRow1, 134, 155, P);
+        fillRange(grid, platRow1,213, 216, P);
+        fillRange(grid, platRow1, 235, 238, P);
 
         fillRange(grid, platRow2, 21, 27, P);
         fillRange(grid, platRow2, 65, 75, P);
@@ -59,11 +61,17 @@ public class LevelTileConfig {
         fillRange(grid, platRow2, 99, 100, P);
         fillRange(grid, platRow2, 102, 103, P);
         fillRange(grid, platRow2, 165, 185, P);
+        fillRange(grid, platRow2, 219, 222, P);
+        fillRange(grid, platRow2, 229, 232, P);
+        fillRange(grid, platRow2, 255, 258, P);
+        fillRange(grid, platRow2, 261, 264, P);
+        fillRange(grid, platRow2, 267, 270, P);
 
         fillRange(grid, platRow3, 105, 107, P);
         fillRange(grid, platRow3, 109, 111, P);
         fillRange(grid, platRow3, 113, 115, P);
         fillRange(grid, platRow3, 134, 155, P);
+        fillRange(grid, platRow3, 225, 227, P);
         
         // 4. Một số "bục" nhỏ kiểu bậc thang
         fillRange(grid, groundRow - 1, 5, 7, G);
@@ -104,6 +112,11 @@ public class LevelTileConfig {
         fillRange(grid, groundRow - 7, 200, 200, G);
         fillRange(grid, groundRow - 8, 200, 200, G);
         fillRange(grid, groundRow - 9, 200, 200, G);
+
+        fillRange(grid, groundRow - 1, 250, 252, G);
+        fillRange(grid, groundRow - 2, 251, 252, G);
+        fillRange(grid, groundRow - 1, 273, 275, G);
+        fillRange(grid, groundRow - 2, 273, 275, G); 
         
         return grid;
     }
