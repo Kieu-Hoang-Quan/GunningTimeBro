@@ -8,6 +8,7 @@ import map.*;
 
 import java.awt.*;
 import java.io.IOException;
+import sound.SoundPlayer;
 
 public class Game implements Runnable {
 
@@ -22,6 +23,7 @@ public class Game implements Runnable {
     private Menu menu;
     private Playing playing;
     private World world;
+    private SoundPlayer soundplayer;
 
     // ✔ StateManager mới
     private GameStateManager gsm;
@@ -41,10 +43,13 @@ public class Game implements Runnable {
         gamePanel = new GamePanel(this);
         gameWindow = new GameWindow(gamePanel);
         gamePanel.requestFocus();
-
         startGameLoop();
-    }
 
+        //sound
+        soundplayer = new SoundPlayer();
+        soundplayer.BackgroundMusic();
+
+    }
     // Getter cho các state & player
     public Player getPlayer() {
         return player;
