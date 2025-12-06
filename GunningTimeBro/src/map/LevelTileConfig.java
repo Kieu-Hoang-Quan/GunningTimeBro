@@ -125,7 +125,34 @@ public class LevelTileConfig {
         fillRange(grid, groundRow - 2, 244, 244, G);
         fillRange(grid, groundRow - 1, 258, 259, G);
         fillRange(grid, groundRow - 2, 258, 258, G);
-       
+
+        fillRange(grid, groundRow -7, 262, 262, G);
+        fillRange(grid, groundRow - 6, 263, 263, G);
+        fillRange (grid, groundRow - 5, 264, 264, G);
+        fillRange (grid, groundRow - 4, 265, 265, G);
+        fillRange (grid, groundRow - 7, 266, 266, G);
+        fillRange (grid, groundRow - 6, 266, 266, G);
+        fillRange (grid, groundRow - 5, 266, 266, G);
+        fillRange(grid, groundRow - 4, 267, 267, G);
+        fillRange(grid, groundRow - 5, 268, 268, G);
+        fillRange(grid, groundRow - 6, 269, 269, G);
+        fillRange (grid, groundRow - 7, 270, 270, G);
+        fillRange(grid, groundRow - 7, 272, 272, G);
+        fillRange (grid, groundRow - 6, 272, 272, G);
+        fillRange (grid, groundRow - 5, 272, 272, G);
+        fillRange (grid, groundRow - 4, 272, 272, G);
+        fillRange (grid, groundRow - 7, 274, 274, G);
+        fillRange (grid, groundRow - 6, 274, 274, G);
+        fillRange (grid, groundRow - 5, 274, 274, G);
+        fillRange (grid, groundRow - 4, 274, 274, G);
+        fillRange (grid, groundRow - 7, 275, 275, G);
+        fillRange(grid, groundRow - 6, 276, 276, G);
+        fillRange (grid, groundRow - 5, 277, 277, G);
+        fillRange (grid, groundRow - 4, 278, 278, G);
+        fillRange (grid, groundRow - 7, 279, 279, G);
+        fillRange (grid, groundRow - 6, 279, 279, G);
+        fillRange (grid, groundRow - 5, 279, 279, G);
+        fillRange (grid, groundRow - 4, 279, 279, G);
         return grid;
     }
 
