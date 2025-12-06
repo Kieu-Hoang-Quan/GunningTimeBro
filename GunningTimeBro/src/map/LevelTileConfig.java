@@ -37,7 +37,7 @@ public class LevelTileConfig {
         clearRange(grid, groundRow, 165, 185); // hố 7
         clearRange(grid, groundRow, 210, 232); // hố 8
         clearRange(grid, groundRow, 234, 236); // hố 9
-        clearRange(grid, groundRow, 245, 257); // hố 10
+        clearRange(grid, groundRow, 245, 259); // hố 10
 
         // 3. Thêm platform ở trên cao
         int platRow0 = groundRow - 1; // thấp nhất
@@ -49,9 +49,9 @@ public class LevelTileConfig {
         fillRange(grid, platRow0, 11, 13, P);
         fillRange(grid, platRow0, 212, 214, P );
 
-        fillRange(grid, platRow0_5, 247, 249, P );
-        fillRange(grid, platRow0_5, 251, 253, P );
-        fillRange(grid, platRow0_5, 255, 257, P);
+        fillRange(grid, platRow1, 247, 249, P );
+        fillRange(grid, platRow1, 251, 253, P );
+        fillRange(grid, platRow1, 255, 257, P);
 
 
         fillRange(grid, platRow1, 11, 19, P);
@@ -72,7 +72,7 @@ public class LevelTileConfig {
         fillRange(grid, platRow2, 165, 185, P);
         fillRange(grid, platRow2, 218, 220, P);
         fillRange(grid, platRow2, 226, 228, P);
-       
+
 
         fillRange(grid, platRow3, 105, 107, P);
         fillRange(grid, platRow3, 109, 111, P);
