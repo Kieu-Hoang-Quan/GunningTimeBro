@@ -123,8 +123,8 @@ public class LevelTileConfig {
 
         fillRange(grid, groundRow - 1, 243, 244, G);
         fillRange(grid, groundRow - 2, 244, 244, G);
-        fillRange(grid, groundRow - 1, 258, 259, G);
-        fillRange(grid, groundRow - 2, 258, 258, G);
+        fillRange(grid, groundRow - 1, 260, 261, G);
+        fillRange(grid, groundRow - 2, 260, 260, G);
 
         fillRange(grid, groundRow -7, 262, 262, G);
         fillRange(grid, groundRow - 6, 263, 263, G);
