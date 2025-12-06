@@ -152,6 +152,9 @@ public class Menu extends State {
 
         if (code == KeyEvent.VK_ENTER) {
             if (currentSelection == 0) {
+                //chỉ có nhạc khi play
+                game.getSoundPlayer().BackgroundMusic();
+
                 game.getStateManager().setState(game.getPlaying());
             } else if (currentSelection == 1) {
                 System.exit(0);
@@ -161,4 +164,5 @@ public class Menu extends State {
 
     @Override
     public void keyReleased(int code) {}
+
 }

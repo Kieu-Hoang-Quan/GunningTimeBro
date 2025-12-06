@@ -47,8 +47,10 @@ public class Game implements Runnable {
 
         //sound
         soundplayer = new SoundPlayer();
-        soundplayer.BackgroundMusic();
-
+    }
+    //Getter cho sound
+    public SoundPlayer getSoundPlayer(){
+        return soundplayer;
     }
     // Getter cho các state & player
     public Player getPlayer() {
