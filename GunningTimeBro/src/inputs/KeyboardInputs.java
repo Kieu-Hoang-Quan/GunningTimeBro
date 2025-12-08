@@ -27,7 +27,6 @@ public class KeyboardInputs implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
-
         gamePanel.getGame().getStateManager().keyReleased(code);
     }
 }

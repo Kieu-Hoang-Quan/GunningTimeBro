@@ -1,7 +1,7 @@
 package main;
 
 import world.*;
-import entity.Player;
+import entity.player.Player;
 import gamestates.*;
 import gamestates.Menu;
 import map.*;
