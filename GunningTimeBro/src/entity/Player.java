@@ -1,12 +1,13 @@
 package entity;
 
+import Gun.Gun;
+import Gun.Bullet;
 import main.Game;
 import utilz.LoadSave;
 
 import static utilz.HelpMethods.*;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import static utilz.HelpMethods.CanMoveHere;
@@ -42,6 +43,9 @@ public class Player extends Entity {
         updatePos();
         updateAnimationTick();
         setAnimation();
+        if (gun != null) {
+            gun.update(1.0 / 200);
+        }
     }
 
     public void loadLvlData(int[][] lvlData) {
@@ -220,6 +224,18 @@ public class Player extends Entity {
         // FALLING: Re-use the JUMP animation frames for FALLING
         animations[FALLING] = animations[JUMP];
     }
+    private Gun gun;
+    public void equipWeapon(Gun g) {
+        this.gun = g;
+    }
+    public Bullet shoot() {
+        if (gun == null) return null;
+
+        float bulletX = (float)(hitbox.x + hitbox.width / 2);
+        float bulletY = (float)(hitbox.y + hitbox.height / 2);
+
+        return gun.tryFire(bulletX, bulletY, flip);
+    }
 
 
     // Getters and Setters
@@ -274,7 +290,7 @@ public class Player extends Entity {
     public void setJump(boolean jump) {
         this.jump = jump;
     }
-    public Rectangle2D.Float getHitbox() {
+    public Rectangle getHitbox() {
         return hitbox;
     }
 

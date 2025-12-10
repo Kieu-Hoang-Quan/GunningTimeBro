@@ -1,9 +1,5 @@
 package entity;
 
-import main.Game;
-
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
@@ -37,7 +33,7 @@ public abstract class Entity {
 //        hitbox.y = (int) y;
 //    }
 
-    public Rectangle2D.Float getHitbox() {
+    public Rectangle getHitbox() {
         return hitbox;
     }
 

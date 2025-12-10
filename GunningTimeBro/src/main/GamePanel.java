@@ -15,6 +15,9 @@ public class GamePanel extends JPanel {
 
     private Game game;
     private final SoundPool soundPool;
+    public SoundPool getSoundPool() {
+        return null;
+    }
 
     public GamePanel(Game game) {
         this.game = game;

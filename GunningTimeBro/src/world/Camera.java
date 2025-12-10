@@ -1,6 +1,6 @@
 package world;
 
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
 
 import main.Game;
 import map.TileMap;
@@ -18,7 +18,7 @@ public class Camera {
     }
 
     // cập nhật camera dựa trên hitbox player + tilemap hiện tại
-    public void update(Rectangle2D.Float playerHitbox, TileMap tileMap) {
+    public void update(Rectangle playerHitbox, TileMap tileMap) {
         // tâm X của player trong world
         float playerCenterX = playerHitbox.x + playerHitbox.width / 2.0f;
 

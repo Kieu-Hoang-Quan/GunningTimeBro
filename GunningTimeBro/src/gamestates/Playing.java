@@ -1,23 +1,38 @@
 package gamestates;
 
+import Gun.Bullet;
+import Gun.GunFactory;
+import Gun.PickupItem;
 import main.Game;
 import world.Camera;
 import world.World;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 public class Playing extends State {
 
     private final Game game;
     private World world;
     private final Camera camera;    // thêm camera
+    private ArrayList<Bullet> bullets = new ArrayList<>();
+    private ArrayList<PickupItem> pickups = new ArrayList<>();
+    private class PickupItem {
+        public PickupItem(int i, int i1) {
+        }
+
+        public void render(Graphics2D g, int camX) {
+        }
+    }
 
     public Playing(Game game, World world) {
         super(game);
         this.game = game;
         this.world = world;
         this.camera = new Camera(); // Playing tự tạo camera
+        pickups.add(new PickupItem(500, 300));
+        pickups.add(new PickupItem(900, 260));
     }
 
     @Override
@@ -29,6 +44,25 @@ public class Playing extends State {
                 game.getPlayer().getHitbox(),
                 world.getTileMap()
         );
+        // --- update bullets: remove dead ones, then update each ---
+        bullets.removeIf(b -> !b.alive);
+        for (gun.Bullet b : bullets) {
+            b.update(world.getTileMap());
+        }
+
+// --- update pickups: check collision with player hitbox ---
+        Rectangle playerHit = game.getPlayer().getHitbox();
+// use iterator if you want to remove while iterating safely
+        Iterator<gun.PickupItem> it = pickups.iterator();
+        while (it.hasNext()) {
+            gun.PickupItem p = it.next();
+            if (!p.taken && playerHit.intersects(new Rectangle((int)p.x, (int)p.y, p.WIDTH, p.HEIGHT))) {
+                p.taken = true;
+                // give the player a weapon (replace GunFactory method/package if different)
+                game.getPlayer().equipWeapon(GunFactory.createBasicGun(Gun.GunFactory.createBasicGun(game.getGamePanel().getSoundPool()));
+                it.remove(); // remove pickup from list
+            }
+        }
     }
 
     @Override
@@ -43,6 +77,11 @@ public class Playing extends State {
 
         // vẽ player
         game.getPlayer().render(g, camX);
+        for (PickupItem p : pickups)
+            p.render(g, camX);
+
+        for (Bullet b : bullets)
+            b.render(g, camX);
     }
 
     @Override
@@ -75,6 +114,10 @@ public class Playing extends State {
                 break;
             case KeyEvent.VK_J:
                 game.getPlayer().setAttacking(true);
+            case KeyEvent.VK_Q:
+                Bullet b = game.getPlayer().shoot();
+                if (b != null) bullets.add(b);
+                break;
         }
     }
 
