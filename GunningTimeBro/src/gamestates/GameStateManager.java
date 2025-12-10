@@ -1,38 +1,36 @@
 package gamestates;
 
-import java.awt.Graphics;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.*;
 
 public class GameStateManager {
 
-    public static final int MENU = 0;
-    public static final int PLAYING = 1;
+    private State currentState;
 
-    private Map<Integer, GameState> states = new HashMap<>();
-    private int currentState;
-
-    public GameStateManager() {
-        // Khởi tạo các state
-        states.put(MENU, new Menu(this));
-        states.put(PLAYING, new Playing(this));
-
-        currentState = MENU;  // Start ở Menu
+    public void setState(State newState) {
+        currentState = newState;
     }
 
-    public void setState(int state) {
-        currentState = state;
+    public State getCurrentState() {
+        return currentState;
     }
 
     public void update() {
-        states.get(currentState).update();
+        if (currentState != null)
+            currentState.update();
     }
 
-    public void render(Graphics g) {
-        states.get(currentState).render(g);
+    public void render(Graphics2D g) {
+        if (currentState != null)
+            currentState.draw(g);
     }
 
-    public void handleInput() {
-        states.get(currentState).handleInput();
+    public void keyPressed(int code) {
+        if (currentState != null)
+            currentState.keyPressed(code);
+    }
+
+    public void keyReleased(int code) {
+        if (currentState != null)
+            currentState.keyReleased(code);
     }
 }

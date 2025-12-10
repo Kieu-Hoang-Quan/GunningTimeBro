@@ -1,29 +1,105 @@
 package gamestates;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import main.Game;
+import world.Camera;
+import world.World;
 
-public class Playing extends GameState {
+import java.awt.*;
+import java.awt.event.KeyEvent;
 
-    public Playing(GameStateManager gsm) {
-        super(gsm);
+public class Playing extends State {
+
+    private final Game game;
+    private World world;
+    private final Camera camera;    // thêm camera
+
+    public Playing(Game game, World world) {
+        super(game);
+        this.game = game;
+        this.world = world;
+        this.camera = new Camera(); // Playing tự tạo camera
     }
 
     @Override
     public void update() {
-        // Update nhân vật, quái, map, va chạm...
+        game.getPlayer().update();
+
+        // cập nhật camera theo player + map
+        camera.update(
+                game.getPlayer().getHitbox(),
+                world.getTileMap()
+        );
     }
 
     @Override
-    public void render(Graphics g) {
-        g.setColor(Color.GREEN);
-        g.drawString("PLAYING STATE - Press ESC to Menu", 100, 100);
+    public void draw(Graphics2D g) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        int camX = camera.getX();
+
+        // vẽ background + tilemap theo camera
+        world.getBgManager().render(g2, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
+        world.getTileMap().render(g2, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
+
+        // vẽ player
+        game.getPlayer().render(g, camX);
     }
 
     @Override
-    public void handleInput() {
-        if (Input.isKeyPressed(Input.ESC)) {
-            gsm.setState(GameStateManager.MENU);
+    public void keyPressed(int code) {
+        switch (code) {
+            case KeyEvent.VK_ESCAPE:
+                game.getStateManager().setState(game.getMenu());
+                break;
+
+            case KeyEvent.VK_W:
+            case KeyEvent.VK_UP:
+            case KeyEvent.VK_SPACE:
+                game.getPlayer().setJump(true);
+                break;
+
+            case KeyEvent.VK_S:
+                game.getPlayer().setDown(true);
+                break;
+
+            case KeyEvent.VK_A:
+            case KeyEvent.VK_LEFT:
+                game.getPlayer().setLeft(true);
+                game.getPlayer().setFlip(true);
+                break;
+
+            case KeyEvent.VK_D:
+            case KeyEvent.VK_RIGHT:
+                game.getPlayer().setRight(true);
+                game.getPlayer().setFlip(false);
+                break;
+            case KeyEvent.VK_J:
+                game.getPlayer().setAttacking(true);
+        }
+    }
+
+    @Override
+    public void keyReleased(int code) {
+        switch (code) {
+            case KeyEvent.VK_W:
+            case KeyEvent.VK_UP:
+            case KeyEvent.VK_SPACE:
+                game.getPlayer().setJump(false);
+                break;
+
+            case KeyEvent.VK_S:
+                game.getPlayer().setDown(false);
+                break;
+
+            case KeyEvent.VK_A:
+            case KeyEvent.VK_LEFT:
+                game.getPlayer().setLeft(false);
+                break;
+
+            case KeyEvent.VK_D:
+            case KeyEvent.VK_RIGHT:
+                game.getPlayer().setRight(false);
+                break;
         }
     }
 }
