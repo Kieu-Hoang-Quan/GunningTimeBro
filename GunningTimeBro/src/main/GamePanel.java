@@ -9,8 +9,15 @@ public class GamePanel extends JPanel {
 
     private Game game;
 
+    // ✔ THÊM: biến static để Enemy có thể truy cập Game
+    public static Game gameInstance;
+
     public GamePanel(Game game) {
         this.game = game;
+
+        // ✔ THÊM: gán instance khi GamePanel được tạo
+        GamePanel.gameInstance = game;
+
         setPanelSize();
 
         addKeyListener(new KeyboardInputs(this));
@@ -34,3 +41,4 @@ public class GamePanel extends JPanel {
         return game;
     }
 }
+

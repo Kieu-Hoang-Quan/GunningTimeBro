@@ -31,4 +31,10 @@ public class World {
     public int[][] getLevelGrid() {
         return levelGrid;
     }
+
+    public float findGroundY(float x) {
+        // code xử lý
+        return 0;
+    }
+
 }

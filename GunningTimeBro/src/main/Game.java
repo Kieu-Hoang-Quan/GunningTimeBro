@@ -1,15 +1,18 @@
 package main;
 
 import world.*;
-import entity.player.Player;
+import entity.Player;
 import gamestates.*;
 import gamestates.Menu;
 import map.*;
+import java.awt.geom.Rectangle2D;
 
 import java.awt.*;
 import java.io.IOException;
 
 public class Game implements Runnable {
+
+    private static Game instance;   // ✔ THÊM
 
     private GameWindow gameWindow;
     private GamePanel gamePanel;
@@ -23,9 +26,11 @@ public class Game implements Runnable {
     private Playing playing;
     private World world;
 
-    // ✔ StateManager mới
-    private GameStateManager gsm;
+    // Khai báo EnemyManager
+    private entity.EnemyManager enemyManager;
 
+    // StateManager
+    private GameStateManager gsm;
 
     public static final int TILES_DEFAULT_SIZE = 32;
     public static final float SCALE = 2f;
@@ -36,6 +41,8 @@ public class Game implements Runnable {
     public static final int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 
     public Game() {
+        instance = this;  // ✔ THÊM
+
         initClasses();
 
         gamePanel = new GamePanel(this);
@@ -45,7 +52,16 @@ public class Game implements Runnable {
         startGameLoop();
     }
 
-    // Getter cho các state & player
+    // STATIC ACCESS FOR ENEMIES (✔ THÊM)
+    public static Game getInstance() {
+        return instance;
+    }
+
+    public static Player getPlayerStatic() {
+        return instance.player;
+    }
+
+    // Getters
     public Player getPlayer() {
         return player;
     }
@@ -58,10 +74,13 @@ public class Game implements Runnable {
         return playing;
     }
 
+    public entity.EnemyManager getEnemyManager() {
+        return enemyManager;
+    }
+
     public GameStateManager getStateManager() {
         return gsm;
     }
-
 
     private void initClasses() {
         // LOAD WORLD
@@ -73,7 +92,8 @@ public class Game implements Runnable {
 
         // PLAYER
         float spawnX = 3 * TILES_SIZE;
-        float spawnY = 300;
+        float spawnY = world.findGroundY(spawnX);
+
         player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
 
         // STATES
@@ -81,19 +101,23 @@ public class Game implements Runnable {
 
         menu = new Menu(this);
         playing = new Playing(this, world);
-        player.loadLvlData(LevelTileConfig.createLevelGrid());
 
+        // Load level data
+        int[][] lvlData = LevelTileConfig.createLevelGrid();
+        player.loadLvlData(lvlData);
 
-        // State mặc định
+        // ENEMY MANAGER
+        enemyManager = new entity.EnemyManager(this);
+        enemyManager.loadEnemies(lvlData);
+
+        // Default state
         gsm.setState(menu);
     }
-
 
     private void startGameLoop() {
         gameThread = new Thread(this);
         gameThread.start();
     }
-
 
     public void update() {
         gsm.update();
@@ -103,15 +127,12 @@ public class Game implements Runnable {
         gsm.render(g);
     }
 
-
     public void windowFocusLost() {
         player.resetDirBooleans();
     }
 
-
     @Override
     public void run() {
-
         double timePerFrame = 1000000000.0 / FPS_SET;
         double timePerUpdate = 1000000000.0 / UPS_SET;
 
@@ -129,7 +150,6 @@ public class Game implements Runnable {
 
             deltaU += (currentTime - previousTime) / timePerUpdate;
             deltaF += (currentTime - previousTime) / timePerFrame;
-
             previousTime = currentTime;
 
             if (deltaU >= 1) {
@@ -156,4 +176,15 @@ public class Game implements Runnable {
     public GamePanel getGamePanel() {
         return gamePanel;
     }
+
+    public boolean PlayerHit(Rectangle2D.Float attackBox, int dmg) {
+        if (player.getHitbox().intersects(attackBox)) {
+
+            System.out.println("PLAYER BỊ ENEMY ĐÁNH! -" + dmg + " máu");
+
+            return true;
+        }
+        return false;
+    }
 }
+

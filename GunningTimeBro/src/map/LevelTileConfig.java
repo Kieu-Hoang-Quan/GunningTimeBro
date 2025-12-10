@@ -27,32 +27,17 @@ public class LevelTileConfig {
             grid[groundRow][c] = G;
         }
 
-        // 2. Tạo hố (giống khoảng trống trong video)
+        // Tạo hố
         clearRange(grid, groundRow, 10, 14); // hố 1
         clearRange(grid, groundRow, 30, 35); // hố 2
         clearRange(grid, groundRow, 55, 58); // hố 3
         clearRange(grid, groundRow, 80, 83); // hố 4
-        clearRange(grid, groundRow, 90, 115); // hố 5
-        clearRange(grid, groundRow, 118, 119); // hố 6
-        clearRange(grid, groundRow, 165, 185); // hố 7
-        clearRange(grid, groundRow, 210, 232); // hố 8
-        clearRange(grid, groundRow, 234, 236); // hố 9
-        clearRange(grid, groundRow, 245, 259); // hố 10
+        clearRange(grid, groundRow, 90, 121); // hố 5
 
-        // 3. Thêm platform ở trên cao
-        int platRow0 = groundRow - 1; // thấp nhất
-        int platRow0_5 = groundRow -2; // cao hơn xíu
-        int platRow1 = groundRow - 3; // cao vừa phải
-        int platRow2 = groundRow - 5; // cao hơn
+        // platform trên cao (adjusted relative to new groundRow)
+        int platRow1 = groundRow - 3;
+        int platRow2 = groundRow - 5;
         int platRow3 = groundRow - 7; // cao nhất
-
-        fillRange(grid, platRow0, 11, 13, P);
-        fillRange(grid, platRow0, 212, 214, P );
-
-        fillRange(grid, platRow1, 247, 249, P );
-        fillRange(grid, platRow1, 251, 253, P );
-        fillRange(grid, platRow1, 255, 257, P);
-
 
         fillRange(grid, platRow1, 11, 19, P);
         fillRange(grid, platRow1, 33, 40, P);
@@ -60,28 +45,18 @@ public class LevelTileConfig {
         fillRange(grid, platRow1, 90, 90, P);
         fillRange(grid, platRow1, 92, 92, P);
         fillRange(grid, platRow1, 94, 94, P);
-        fillRange(grid, platRow1, 134, 155, P);
-        fillRange(grid, platRow1,216, 218, P);
-        fillRange(grid, platRow1, 230, 232, P);
 
-        fillRange(grid, platRow2, 21, 27, P);
+        fillRange(grid, platRow2, 22, 27, P);
         fillRange(grid, platRow2, 65, 75, P);
         fillRange(grid, platRow2, 96, 97, P);
         fillRange(grid, platRow2, 99, 100, P);
         fillRange(grid, platRow2, 102, 103, P);
-        fillRange(grid, platRow2, 165, 185, P);
-        fillRange(grid, platRow2, 218, 220, P);
-        fillRange(grid, platRow2, 226, 228, P);
 
+        fillRange(grid, platRow3, 106, 109, P);
+        fillRange(grid, platRow3, 112, 115, P);
+        fillRange(grid, platRow3, 118, 121, P);
 
-        fillRange(grid, platRow3, 105, 107, P);
-        fillRange(grid, platRow3, 109, 111, P);
-        fillRange(grid, platRow3, 113, 115, P);
-        fillRange(grid, platRow3, 134, 155, P);
-        fillRange(grid, platRow3, 222, 224, P);
-        
-        // 4. Một số "bục" nhỏ kiểu bậc thang
-
+        // bậc thang
         fillRange(grid, groundRow - 1, 5, 7, G);
         fillRange(grid, groundRow - 2, 6, 7, G);
 
@@ -91,68 +66,7 @@ public class LevelTileConfig {
 
         fillRange(grid, groundRow - 1, 87, 89, G);
         fillRange(grid, groundRow - 2, 88, 89, G);
-
-        fillRange(grid, groundRow - 1, 128, 132, G);
-        fillRange(grid, groundRow - 2, 129, 131, G);
-
-        fillRange(grid, groundRow - 3, 156, 156, G);
-        fillRange(grid, groundRow - 4, 156, 156, G);
-        fillRange(grid, groundRow - 5, 156, 156, G);
-        fillRange(grid, groundRow - 6, 156, 156, G);
-        fillRange(grid, groundRow - 7, 156, 156, G);
-
-        fillRange(grid, groundRow - 1, 160, 164, G);
-        fillRange(grid, groundRow - 2, 161, 164, G);
-        fillRange(grid, groundRow - 3, 162, 164, G);
-        fillRange(grid, groundRow - 4, 163, 164, G);
-        fillRange(grid, groundRow - 5, 164, 164, G);
-
-        fillRange(grid, groundRow - 5, 186, 186, G);
-        fillRange(grid, groundRow - 4, 186, 187, G);
-        fillRange(grid, groundRow - 3, 186, 188, G);
-        fillRange(grid, groundRow - 2, 186, 189, G);
-        fillRange(grid, groundRow - 1, 186, 190, G);
-
-        fillRange(grid, groundRow - 3, 200, 200, G);
-        fillRange(grid, groundRow - 4, 200, 200, G);
-        fillRange(grid, groundRow - 5, 200, 200, G);
-        fillRange(grid, groundRow - 6, 200, 200, G);
-        fillRange(grid, groundRow - 7, 200, 200, G);
-        fillRange(grid, groundRow - 8, 200, 200, G);
-        fillRange(grid, groundRow - 9, 200, 200, G);
-
-        fillRange(grid, groundRow - 1, 243, 244, G);
-        fillRange(grid, groundRow - 2, 244, 244, G);
-        fillRange(grid, groundRow - 1, 260, 261, G);
-        fillRange(grid, groundRow - 2, 260, 260, G);
-
-        fillRange(grid, groundRow -7, 262, 262, G);
-        fillRange(grid, groundRow - 6, 263, 263, G);
-        fillRange (grid, groundRow - 5, 264, 264, G);
-        fillRange (grid, groundRow - 4, 265, 265, G);
-        fillRange (grid, groundRow - 7, 266, 266, G);
-        fillRange (grid, groundRow - 6, 266, 266, G);
-        fillRange (grid, groundRow - 5, 266, 266, G);
-        fillRange(grid, groundRow - 4, 267, 267, G);
-        fillRange(grid, groundRow - 5, 268, 268, G);
-        fillRange(grid, groundRow - 6, 269, 269, G);
-        fillRange (grid, groundRow - 7, 270, 270, G);
-        fillRange(grid, groundRow - 7, 272, 272, G);
-        fillRange (grid, groundRow - 6, 272, 272, G);
-        fillRange (grid, groundRow - 5, 272, 272, G);
-        fillRange (grid, groundRow - 4, 272, 272, G);
-        fillRange (grid, groundRow - 7, 274, 274, G);
-        fillRange (grid, groundRow - 6, 274, 274, G);
-        fillRange (grid, groundRow - 5, 274, 274, G);
-        fillRange (grid, groundRow - 4, 274, 274, G);
-        fillRange (grid, groundRow - 7, 275, 275, G);
-        fillRange(grid, groundRow - 6, 276, 276, G);
-        fillRange (grid, groundRow - 5, 277, 277, G);
-        fillRange (grid, groundRow - 4, 278, 278, G);
-        fillRange (grid, groundRow - 7, 279, 279, G);
-        fillRange (grid, groundRow - 6, 279, 279, G);
-        fillRange (grid, groundRow - 5, 279, 279, G);
-        fillRange (grid, groundRow - 4, 279, 279, G);
+        
         return grid;
     }
 

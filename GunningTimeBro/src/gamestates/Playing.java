@@ -11,95 +11,67 @@ public class Playing extends State {
 
     private final Game game;
     private World world;
-    private final Camera camera;    // thêm camera
+    private final Camera camera;
 
     public Playing(Game game, World world) {
         super(game);
         this.game = game;
         this.world = world;
-        this.camera = new Camera(); // Playing tự tạo camera
+        this.camera = new Camera();
     }
 
     @Override
     public void update() {
         game.getPlayer().update();
 
-        // cập nhật camera theo player + map
         camera.update(
                 game.getPlayer().getHitbox(),
                 world.getTileMap()
         );
+
+        // ✔ update enemies
+        game.getEnemyManager().update();
     }
 
     @Override
     public void draw(Graphics2D g) {
-        Graphics2D g2 = (Graphics2D) g;
 
         int camX = camera.getX();
 
-        // vẽ background + tilemap theo camera
-        world.getBgManager().render(g2, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
-        world.getTileMap().render(g2, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
+        world.getBgManager().render(g, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
+        world.getTileMap().render(g, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
 
-        // vẽ player
+        // ✔ vẽ enemies
+        game.getEnemyManager().draw(g, camX);
+
         game.getPlayer().render(g, camX);
     }
 
     @Override
     public void keyPressed(int code) {
         switch (code) {
-            case KeyEvent.VK_ESCAPE:
-                game.getStateManager().setState(game.getMenu());
-                break;
-
-            case KeyEvent.VK_W:
-            case KeyEvent.VK_UP:
-            case KeyEvent.VK_SPACE:
-                game.getPlayer().setJump(true);
-                break;
-
-            case KeyEvent.VK_S:
-                game.getPlayer().setDown(true);
-                break;
-
-            case KeyEvent.VK_A:
-            case KeyEvent.VK_LEFT:
+            case KeyEvent.VK_ESCAPE -> game.getStateManager().setState(game.getMenu());
+            case KeyEvent.VK_W, KeyEvent.VK_UP, KeyEvent.VK_SPACE -> game.getPlayer().setJump(true);
+            case KeyEvent.VK_S -> game.getPlayer().setDown(true);
+            case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {
                 game.getPlayer().setLeft(true);
                 game.getPlayer().setFlip(true);
-                break;
-
-            case KeyEvent.VK_D:
-            case KeyEvent.VK_RIGHT:
+            }
+            case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
                 game.getPlayer().setRight(true);
                 game.getPlayer().setFlip(false);
-                break;
-            case KeyEvent.VK_J:
-                game.getPlayer().setAttacking(true);
+            }
+            case KeyEvent.VK_J -> game.getPlayer().setAttacking(true);
         }
     }
 
     @Override
     public void keyReleased(int code) {
         switch (code) {
-            case KeyEvent.VK_W:
-            case KeyEvent.VK_UP:
-            case KeyEvent.VK_SPACE:
-                game.getPlayer().setJump(false);
-                break;
-
-            case KeyEvent.VK_S:
-                game.getPlayer().setDown(false);
-                break;
-
-            case KeyEvent.VK_A:
-            case KeyEvent.VK_LEFT:
-                game.getPlayer().setLeft(false);
-                break;
-
-            case KeyEvent.VK_D:
-            case KeyEvent.VK_RIGHT:
-                game.getPlayer().setRight(false);
-                break;
+            case KeyEvent.VK_W, KeyEvent.VK_UP, KeyEvent.VK_SPACE -> game.getPlayer().setJump(false);
+            case KeyEvent.VK_S -> game.getPlayer().setDown(false);
+            case KeyEvent.VK_A, KeyEvent.VK_LEFT -> game.getPlayer().setLeft(false);
+            case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> game.getPlayer().setRight(false);
         }
     }
 }
