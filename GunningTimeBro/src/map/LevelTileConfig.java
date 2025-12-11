@@ -14,11 +14,14 @@ public class LevelTileConfig {
     public static int[][] createLevelGrid() {
         // CHANGED: Increased rows to 14 to fill more screen vertical space
         int rows = 10;
-        int cols = 360;
+        int cols = 290;
         int[][] grid = new int[rows][cols];
 
         final int G = 73;    // ground tile
         final int P = 20;    // purple platform tile
+        final int F = 1;     // vertical purple platform tile
+        final int W = 33;    // WIN
+        final int H = 61;    // Ống DỌC
 
         int groundRow = rows - 1;
 
@@ -60,7 +63,7 @@ public class LevelTileConfig {
         fillRange(grid, platRow1, 90, 90, P);
         fillRange(grid, platRow1, 92, 92, P);
         fillRange(grid, platRow1, 94, 94, P);
-        fillRange(grid, platRow1, 134, 155, P);
+        fillRange(grid, platRow1, 134, 156, P); // hang quái
         fillRange(grid, platRow1,216, 218, P);
         fillRange(grid, platRow1, 230, 232, P);
 
@@ -77,7 +80,7 @@ public class LevelTileConfig {
         fillRange(grid, platRow3, 105, 107, P);
         fillRange(grid, platRow3, 109, 111, P);
         fillRange(grid, platRow3, 113, 115, P);
-        fillRange(grid, platRow3, 134, 155, P);
+        fillRange(grid, platRow3, 134, 156, P); // hang quái
         fillRange(grid, platRow3, 222, 224, P);
         
         // 4. Một số "bục" nhỏ kiểu bậc thang
@@ -95,11 +98,11 @@ public class LevelTileConfig {
         fillRange(grid, groundRow - 1, 128, 132, G);
         fillRange(grid, groundRow - 2, 129, 131, G);
 
-        fillRange(grid, groundRow - 3, 156, 156, G);
-        fillRange(grid, groundRow - 4, 156, 156, G);
-        fillRange(grid, groundRow - 5, 156, 156, G);
-        fillRange(grid, groundRow - 6, 156, 156, G);
-        fillRange(grid, groundRow - 7, 156, 156, G);
+//        fillRange(grid, groundRow - 3, 156, 156, F); // hang quái
+        fillRange(grid, groundRow - 4, 156, 156, F); // hang quái
+        fillRange(grid, groundRow - 5, 156, 156, F); // hang quái
+        fillRange(grid, groundRow - 6, 156, 156, F); // hang quái
+//        fillRange(grid, groundRow - 7, 156, 156, F); // hang quái
 
         fillRange(grid, groundRow - 1, 160, 164, G);
         fillRange(grid, groundRow - 2, 161, 164, G);
@@ -113,46 +116,47 @@ public class LevelTileConfig {
         fillRange(grid, groundRow - 2, 186, 189, G);
         fillRange(grid, groundRow - 1, 186, 190, G);
 
-        fillRange(grid, groundRow - 3, 200, 200, G);
-        fillRange(grid, groundRow - 4, 200, 200, G);
-        fillRange(grid, groundRow - 5, 200, 200, G);
-        fillRange(grid, groundRow - 6, 200, 200, G);
-        fillRange(grid, groundRow - 7, 200, 200, G);
-        fillRange(grid, groundRow - 8, 200, 200, G);
-        fillRange(grid, groundRow - 9, 200, 200, G);
+        // ỐNG DỌC
+        fillRange(grid, groundRow - 3, 200, 200, H);
+        fillRange(grid, groundRow - 4, 200, 200, H);
+        fillRange(grid, groundRow - 5, 200, 200, H);
+        fillRange(grid, groundRow - 6, 200, 200, H);
+        fillRange(grid, groundRow - 7, 200, 200, H);
+        fillRange(grid, groundRow - 8, 200, 200, H);
+        fillRange(grid, groundRow - 9, 200, 200, H);
 
         fillRange(grid, groundRow - 1, 243, 244, G);
         fillRange(grid, groundRow - 2, 244, 244, G);
         fillRange(grid, groundRow - 1, 260, 261, G);
         fillRange(grid, groundRow - 2, 260, 260, G);
 
-        fillRange(grid, groundRow -7, 262, 262, G);
-        fillRange(grid, groundRow - 6, 263, 263, G);
-        fillRange (grid, groundRow - 5, 264, 264, G);
-        fillRange (grid, groundRow - 4, 265, 265, G);
-        fillRange (grid, groundRow - 7, 266, 266, G);
-        fillRange (grid, groundRow - 6, 266, 266, G);
-        fillRange (grid, groundRow - 5, 266, 266, G);
-        fillRange(grid, groundRow - 4, 267, 267, G);
-        fillRange(grid, groundRow - 5, 268, 268, G);
-        fillRange(grid, groundRow - 6, 269, 269, G);
-        fillRange (grid, groundRow - 7, 270, 270, G);
-        fillRange(grid, groundRow - 7, 272, 272, G);
-        fillRange (grid, groundRow - 6, 272, 272, G);
-        fillRange (grid, groundRow - 5, 272, 272, G);
-        fillRange (grid, groundRow - 4, 272, 272, G);
-        fillRange (grid, groundRow - 7, 274, 274, G);
-        fillRange (grid, groundRow - 6, 274, 274, G);
-        fillRange (grid, groundRow - 5, 274, 274, G);
-        fillRange (grid, groundRow - 4, 274, 274, G);
-        fillRange (grid, groundRow - 7, 275, 275, G);
-        fillRange(grid, groundRow - 6, 276, 276, G);
-        fillRange (grid, groundRow - 5, 277, 277, G);
-        fillRange (grid, groundRow - 4, 278, 278, G);
-        fillRange (grid, groundRow - 7, 279, 279, G);
-        fillRange (grid, groundRow - 6, 279, 279, G);
-        fillRange (grid, groundRow - 5, 279, 279, G);
-        fillRange (grid, groundRow - 4, 279, 279, G);
+        fillRange(grid, groundRow -7, 262, 262, W);
+        fillRange(grid, groundRow - 6, 263, 263, W);
+        fillRange (grid, groundRow - 5, 264, 264, W);
+        fillRange (grid, groundRow - 4, 265, 265, W);
+        fillRange (grid, groundRow - 7, 266, 266, W);
+        fillRange (grid, groundRow - 6, 266, 266, W);
+        fillRange (grid, groundRow - 5, 266, 266, W);
+        fillRange(grid, groundRow - 4, 267, 267, W);
+        fillRange(grid, groundRow - 5, 268, 268, W);
+        fillRange(grid, groundRow - 6, 269, 269, W);
+        fillRange (grid, groundRow - 7, 270, 270, W);
+        fillRange(grid, groundRow - 7, 272, 272, W);
+        fillRange (grid, groundRow - 6, 272, 272, W);
+        fillRange (grid, groundRow - 5, 272, 272, W);
+        fillRange (grid, groundRow - 4, 272, 272, W);
+        fillRange (grid, groundRow - 7, 274, 274, W);
+        fillRange (grid, groundRow - 6, 274, 274, W);
+        fillRange (grid, groundRow - 5, 274, 274, W);
+        fillRange (grid, groundRow - 4, 274, 274, W);
+        fillRange (grid, groundRow - 7, 275, 275, W);
+        fillRange(grid, groundRow - 6, 276, 276, W);
+        fillRange (grid, groundRow - 5, 277, 277, W);
+        fillRange (grid, groundRow - 4, 278, 278, W);
+        fillRange (grid, groundRow - 7, 279, 279, W);
+        fillRange (grid, groundRow - 6, 279, 279, W);
+        fillRange (grid, groundRow - 5, 279, 279, W);
+        fillRange (grid, groundRow - 4, 279, 279, W);
         return grid;
     }
 
