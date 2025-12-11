@@ -16,20 +16,16 @@ public class EnemyManager {
     private BufferedImage[][] enemySprites;
     private int[][] lvlData;
 
-    // ========= CẤU HÌNH AN TOÀN SPAWN ==========
     private final int tile = 64;
-    private final int MIN_PLATFORM_SIZE = 8;      // Không spawn trên platform nhỏ
-    private final int NO_SPAWN_LEFT = 300;        // Không spawn đầu map
-    private final int NO_SPAWN_RIGHT_OFFSET = 20; // Không spawn cuối map
+    private final int MIN_PLATFORM_SIZE = 8;
+    private final int NO_SPAWN_LEFT = 300;
+    private final int NO_SPAWN_RIGHT_OFFSET = 20;
 
     public EnemyManager(Game game) {
         this.game = game;
         loadEnemySprites();
     }
 
-    // ============================================================
-    //                     SPAWN ENEMIES
-    // ============================================================
     public void loadEnemies(int[][] lvlData) {
 
         this.lvlData = lvlData;
@@ -47,19 +43,14 @@ public class EnemyManager {
             while (c < cols) {
                 int tileId = lvlData[r][c];
 
-                // ============================================
-                //                SPAWN TRÊN PLATFORM
-                // ============================================
-                if (tileId == 20) { // platform tile
+                if (tileId == 20) {
 
                     int start = c;
-
                     while (c < cols && lvlData[r][c] == 20) c++;
                     int end = c - 1;
 
                     int width = end - start + 1;
 
-                    // Chỉ spawn platform đủ lớn
                     if (width >= MIN_PLATFORM_SIZE) {
 
                         int mid = (start + end) / 2;
@@ -78,9 +69,6 @@ public class EnemyManager {
 
                 } else {
 
-                    // ============================================
-                    //                 SPAWN TRÊN GROUND
-                    // ============================================
                     if (tileId == 73) {
 
                         boolean isGroundTop = (r == rows - 1 || lvlData[r + 1][c] == 0);
@@ -126,7 +114,6 @@ public class EnemyManager {
         System.out.println("Spawned enemies: " + enemies.size());
     }
 
-    // ============================================================
     private boolean intersectsExisting(Rectangle2D.Float hb) {
         for (Enemies e : enemies) {
             if (hb.intersects(e.getHitbox())) return true;
@@ -134,9 +121,6 @@ public class EnemyManager {
         return false;
     }
 
-    // ============================================================
-    //                 LOAD SPRITES
-    // ============================================================
     private void loadEnemySprites() {
         enemySprites = new BufferedImage[5][];
 
@@ -164,56 +148,57 @@ public class EnemyManager {
         }
     }
 
-    // ============================================================
-    //                     UPDATE & DRAW
-    // ============================================================
+    // ==============================
+    //       CHỈ SỬA 1 DÒNG TẠI ĐÂY
+    // ==============================
     public void update() {
         for (Enemies e : enemies) {
-            if (e.isAlive()) {
 
-                e.update(lvlData);
+            // ❌ CODE CŨ:
+            // if (e.isAlive()) e.update(lvlData);
 
-                if (e.getEnemyState() == 2 &&
-                        !e.attackChecked &&
-                        e.isAttackFrame()) {
+            // ✔ CODE MỚI: luôn update kể cả khi chết (để chạy animation death)
+            e.update(lvlData);
 
-                    game.getPlayer().receiveDamageFromEnemy(
-                            e.getAttackBox(), e.attackDamage
-                    );
-                    e.attackChecked = true;
-                }
+            if (e.getEnemyState() == 2 &&
+                    !e.attackChecked &&
+                    e.isAttackFrame()) {
+
+                game.getPlayer().receiveDamageFromEnemy(
+                        e.getAttackBox(), e.attackDamage
+                );
+                e.attackChecked = true;
             }
         }
     }
 
     public void draw(Graphics g, int xOff) {
         for (Enemies e : enemies) {
-            if (e.isAlive()) {
 
-                int state = e.getEnemyState();
-                int frame = e.getAniIndex();
+            int state = e.getEnemyState();
+            int frame = e.getAniIndex();
 
-                int W = 144, H = 64;
+            int W = 144, H = 64;
 
-                float hbW = e.getHitbox().width;
-                float hbH = e.getHitbox().height;
+            float hbW = e.getHitbox().width;
+            float hbH = e.getHitbox().height;
 
-                float xOffDraw = (W - hbW) / 2;
-                float yOffDraw = (H - hbH);
+            float xOffDraw = (W - hbW) / 2;
+            float yOffDraw = (H - hbH);
 
-                int x = (int) (e.getHitbox().x - xOffDraw - xOff);
-                int y = (int) (e.getHitbox().y - yOffDraw);
+            int x = (int) (e.getHitbox().x - xOffDraw - xOff);
+            int y = (int) (e.getHitbox().y - yOffDraw);
 
-                int flip = e.isFlip() ? -1 : 1;
+            int flip = e.isFlip() ? -1 : 1;
 
-                g.drawImage(
-                        enemySprites[state][frame],
-                        x + (flip == -1 ? W : 0),
-                        y,
-                        W * flip, H,
-                        null
-                );
-            }
+            g.drawImage(
+                    enemySprites[state][frame],
+                    x + (flip == -1 ? W : 0),
+                    y,
+                    W * flip,
+                    H,
+                    null
+            );
         }
     }
 
@@ -221,6 +206,7 @@ public class EnemyManager {
         return enemies;
     }
 }
+
 
 
 

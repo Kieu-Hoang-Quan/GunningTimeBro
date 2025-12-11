@@ -13,7 +13,7 @@ public abstract class Enemies extends Entity {
 
     protected int aniIndex, aniTick;
     protected int walkAniSpeed = 15;
-    protected int attackAniSpeed = 28; // attack animation chậm hơn
+    protected int attackAniSpeed = 28;
     protected int holdAttackFrameTicks = 7;
     protected int holdTick = 0;
 
@@ -49,11 +49,14 @@ public abstract class Enemies extends Entity {
         attackBox = new Rectangle2D.Float(hitbox.x, hitbox.y, hitbox.width, hitbox.height * 0.3f);
     }
 
-    // ========================================================================
-    // UPDATE
-    // ========================================================================
     public void update(int[][] lvlData) {
+
         this.lvlData = lvlData;
+
+        if (enemyState == DEAD) {
+            updateAnimationTick(); // chỉ chạy animation death rồi đứng im
+            return;
+        }
 
         if (firstUpdate) {
             if (!IsEntityOnFloor(hitbox, lvlData)) {
@@ -72,9 +75,6 @@ public abstract class Enemies extends Entity {
         updateAnimationTick();
     }
 
-    // ========================================================================
-    // AI FIX → chỉ tấn công khi Player CÙNG TẦNG
-    // ========================================================================
     protected void updateStateAI() {
 
         if (enemyState == DEAD) return;
@@ -94,34 +94,27 @@ public abstract class Enemies extends Entity {
         float distX = Math.abs(px - ex);
         float distY = Math.abs(py - ey);
 
-        // *** FIX QUAN TRỌNG — kiểm tra cùng tầng ***
         boolean sameLevel = distY < hitbox.height * 0.6f;
 
-        // ===== ATTACK =====
         if (sameLevel && distX < attackTriggerRange) {
             flip = px < ex;
             setNewState(ATTACK);
             return;
         }
 
-        // ===== CHASE =====
         if (sameLevel && distX < chaseRange) {
             flip = px < ex;
             setNewState(RUNNING);
             return;
         }
 
-        // ===== PATROL =====
         if (enemyState != RUNNING)
             setNewState(RUNNING);
     }
 
-    // ========================================================================
-    // MOVEMENT
-    // ========================================================================
     protected void updatePos() {
 
-        if (enemyState == ATTACK) return;
+        if (enemyState == ATTACK || enemyState == DEAD) return;
 
         float xSpeed = flip ? -walkSpeed : walkSpeed;
 
@@ -148,14 +141,11 @@ public abstract class Enemies extends Entity {
             else
                 flip = !flip;
         } else {
-            hitbox.x += flip ? 1 : -1; // unstuck
+            hitbox.x += flip ? 1 : -1;
             flip = !flip;
         }
     }
 
-    // ========================================================================
-    // ATTACKBOX (đúng như bạn đã chỉnh)
-    // ========================================================================
     private void updateAttackBox() {
 
         float baseRange = hitbox.width * attackRangeMultiplier;
@@ -185,14 +175,12 @@ public abstract class Enemies extends Entity {
         attackBox.x = flip ? hitbox.x - effectiveRange : hitbox.x + hitbox.width;
     }
 
-    // ========================================================================
-    // ANIMATION FIX — attack animation CHẬM HƠN & GIỮ FRAME CUỐI
-    // ========================================================================
     protected void updateAnimationTick() {
 
         int speed = (enemyState == ATTACK) ? attackAniSpeed : walkAniSpeed;
 
         aniTick++;
+
         if (aniTick >= speed) {
             aniTick = 0;
             aniIndex++;
@@ -213,32 +201,33 @@ public abstract class Enemies extends Entity {
                     return;
                 }
 
-            } else {
-                if (aniIndex >= maxFrames)
-                    aniIndex = 0;
+            }
+            else if (enemyState == DEAD) {
+
+                if (aniIndex >= maxFrames) {
+                    aniIndex = maxFrames - 1; // đứng im frame cuối
+                }
+                return;
+            }
+            else {
+                if (aniIndex >= maxFrames) aniIndex = 0;
             }
         }
     }
 
-    // ========================================================================
-    // PRIMARY DAMAGE FRAME
-    // ========================================================================
     public boolean isAttackFrame() {
         int total = EnemyConstants.GetSpriteAmount(enemyType, ATTACK);
         if (total <= 2) return aniIndex == total - 1;
         return aniIndex == total - 2;
     }
 
-    // ========================================================================
-    // DAMAGE RECEIVED
-    // ========================================================================
     public void receiveDamage(int dmg) {
         if (enemyState == DEAD) return;
 
         hp -= dmg;
         if (hp <= 0) {
             hp = 0;
-            setNewState(DEAD);
+            setNewState(DEAD); // làm chết
         } else {
             setNewState(HIT);
         }
@@ -253,12 +242,13 @@ public abstract class Enemies extends Entity {
         attackChecked = false;
     }
 
-    // ========================================================================
-    // GETTERS
-    // ========================================================================
+    // luôn hiển thị cả khi chết
+    public boolean isAlive() {
+        return true;
+    }
+
     public int getAniIndex() { return aniIndex; }
     public int getEnemyState() { return enemyState; }
-    public boolean isAlive() { return enemyState != DEAD; }
     public boolean isFlip() { return flip; }
     public Rectangle2D.Float getHitbox() { return hitbox; }
     public Rectangle2D.Float getAttackBox() { return attackBox; }
