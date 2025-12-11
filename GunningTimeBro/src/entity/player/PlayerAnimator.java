@@ -1,10 +1,11 @@
 package entity.player;
 
 import utilz.LoadSave;
-import java.awt.image.BufferedImage;
+import java.awt. image.BufferedImage;
 import static utilz.Constants.PlayerConstants.*;
 
 public class PlayerAnimator {
+
     private BufferedImage[][] animations;
     private int aniTick, aniIndex, aniSpeed = 15;
     private int playerAction = IDLE;
@@ -14,12 +15,12 @@ public class PlayerAnimator {
     }
 
     public void update(int currentAction) {
-        // Nếu action thay đổi, reset animation
+        // If action changed, reset animation
         if (playerAction != currentAction) {
             playerAction = currentAction;
-            aniTick = 0;
-            aniIndex = 0;
+            resetAnimation();
         }
+
         updateAnimationTick();
     }
 
@@ -28,28 +29,37 @@ public class PlayerAnimator {
         if (aniTick >= aniSpeed) {
             aniTick = 0;
             aniIndex++;
+
             if (aniIndex >= GetSpriteAmount(playerAction)) {
                 aniIndex = 0;
             }
         }
     }
 
+
+    public boolean isAnimationFinished() {
+        return aniIndex == GetSpriteAmount(playerAction) - 1 && aniTick >= aniSpeed - 1;
+    }
+
+    public void resetAnimation() {
+        aniTick = 0;
+        aniIndex = 0;
+    }
+
     private void loadAnimations() {
         animations = new BufferedImage[9][6];
 
-        // Helper func to load subimages cleanly (Optional refactor)
         animations[IDLE] = loadStartParams(LoadSave.PLAYER_IDLE, 4);
         animations[RUNNING] = loadStartParams(LoadSave.PLAYER_RUN, 6);
         animations[HIT] = loadStartParams(LoadSave.PLAYER_HIT, 6);
         animations[JUMP] = loadStartParams(LoadSave.PLAYER_JUMP, 4);
-        animations[FALLING] = animations[JUMP]; // Reuse jump for falling
+        animations[FALLING] = animations[JUMP];
     }
 
     private BufferedImage[] loadStartParams(String filename, int frames) {
         BufferedImage sheet = LoadSave.GetSpriteAtlas(filename);
         BufferedImage[] arr = new BufferedImage[frames];
         for (int i = 0; i < frames; i++) {
-            // Assuming sprite size is 48x48 as per your original code
             arr[i] = sheet.getSubimage(i * 48, 0, 48, 48);
         }
         return arr;

@@ -1,5 +1,6 @@
 package main;
 
+import inputs.*;
 import java.awt.*;
 import javax.swing.JPanel;
 
@@ -8,12 +9,14 @@ import inputs.KeyboardInputs;
 public class GamePanel extends JPanel {
 
     private Game game;
+    private KeyboardInputs keyboardInputs;
 
     public GamePanel(Game game) {
         this.game = game;
         setPanelSize();
 
-        addKeyListener(new KeyboardInputs(this));
+        this.keyboardInputs = new KeyboardInputs(this, game.getInputManager());
+        addKeyListener(keyboardInputs);
         setFocusable(true);
         requestFocusInWindow();
     }

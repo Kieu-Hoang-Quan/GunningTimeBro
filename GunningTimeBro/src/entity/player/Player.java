@@ -1,116 +1,123 @@
 package entity.player;
 
 import entity.Entity;
+import entity.player.playercomponents.*;
 import main.Game;
+
 import java.awt.*;
 import static utilz.Constants.PlayerConstants.*;
-import static utilz.HelpMethods.IsEntityOnFloor;
+import static utilz.HelpMethods. IsEntityOnFloor;
 
 public class Player extends Entity {
 
-    // Components (Composition over Inheritance)
+
+
     private PlayerPhysics physics;
     private PlayerAnimator animator;
     private PlayerRender renderer;
 
-    // State
-    private int playerAction = IDLE;
-    private boolean left, up, right, down, jump;
-    private boolean moving = false, attacking = false;
+    private InputHandler inputHandler;
+    private MovementState movementState;
+    private AnimationState animationState;
+
+
+
     private boolean flip = false;
 
-    // Level Data
+    // Attack state
+    private boolean attacking = false;
+    private boolean attackStarted = false;
+
     private int[][] lvlData;
+
+
 
     public Player(float x, float y, int width, int height) {
         super(x, y, width, height);
 
-        // Khởi tạo các components
         initHitbox(x, y, 6 * Game.SCALE, 15 * Game.SCALE);
+
+        // Initialize components
         this.physics = new PlayerPhysics(this);
         this.animator = new PlayerAnimator();
         this.renderer = new PlayerRender();
+
+        this.inputHandler = new InputHandler();
+        this.movementState = new MovementState(physics, inputHandler);
+        this.animationState = new AnimationState(movementState);
     }
+
+
 
     public void update() {
         if (lvlData == null) return;
 
-        // 1. Update Physics (Di chuyển)
-        physics.update(lvlData, left, right, jump);
+        // Update attack state
+        updateAttackState();
 
-        // 2. Update Logic Game (Quyết định action là gì)
-        updateHealthOrGameLogic(); // Ví dụ
+        // Update physics
+        physics.update(lvlData,
+                inputHandler.isLeft(),
+                inputHandler.isRight(),
+                inputHandler.isJump()
+        );
 
-        // 3. Quyết định Animation State dựa trên Physics/Input
-        setAnimationState();
+        // Update flip direction
+        updateFlip();
 
-        // 4. Update Animation tick
-        animator.update(playerAction);
+        // Update animation state
+        animationState.setAttacking(attacking);
+        int currentAction = animationState.getCurrentAction();
+        animator.update(currentAction);
     }
 
+
+    private void updateAttackState() {
+        if (attackStarted) {
+            attacking = true;
+
+            // Check if attack animation finished
+            if (animator.isAnimationFinished()) {
+                attacking = false;
+                attackStarted = false;
+                animator.resetAnimation();
+            }
+        }
+    }
+
+    private void updateFlip() {
+        if (inputHandler.isLeft()) flip = true;
+        if (inputHandler.isRight()) flip = false;
+    }
     public void render(Graphics g, int camX) {
         renderer.render(g, this, camX);
     }
 
     public void loadLvlData(int[][] lvlData) {
         this.lvlData = lvlData;
-        if (!IsEntityOnFloor(hitbox, lvlData)) {
+        if (! IsEntityOnFloor(hitbox, lvlData)) {
             physics.setInAir(true);
         }
     }
 
-    private void updateHealthOrGameLogic() {
-        // Kiểm tra xem có đang di chuyển không để set cờ moving
-        if (left || right) moving = true;
-        else moving = false;
-
-        // Xử lý lật hình
-        if (left) flip = true;
-        if (right) flip = false;
-    }
-
-    private void setAnimationState() {
-        int startAni = playerAction;
-
-        if (moving)
-            playerAction = RUNNING;
-        else
-            playerAction = IDLE;
-
-        if (physics.isInAir()) {
-            if (physics.getAirSpeed() < 0)
-                playerAction = JUMP;
-            else
-                playerAction = FALLING;
-        }
-
-        if (attacking) {
-            playerAction = HIT; // Hoặc ATTACK_1
-            // Logic reset attack khi hết animation frame sẽ xử lý ở animator hoặc check index
-            if (animator.getAniIndex() == 0 && playerAction == HIT) {
-                // attacking = false; // Logic này cần tinh chỉnh tùy game
-            }
-        }
-    }
-
-    // --- Getters & Setters ---
-
     public void resetDirBooleans() {
-        up = down = left = right = false;
+        inputHandler.resetAll();
     }
 
     public void setAttacking(boolean attacking) {
-        this.attacking = attacking;
+        if (attacking && !this.attacking && !attackStarted) {
+            this.attackStarted = true;
+            animator.resetAnimation();
+        }
     }
 
-    public void setFlip(boolean flip) {
-        this.flip = flip;
-    }
+    public void setFlip(boolean flip) { this.flip = flip; }
     public boolean isFlip() { return flip; }
-    public void setLeft(boolean left) { this.left = left; }
-    public void setRight(boolean right) { this.right = right; }
-    public void setJump(boolean jump) { this.jump = jump; }
-    public void setDown(boolean down) { this.down = down; }
+
+    public void setLeft(boolean left) { inputHandler.setLeft(left); }
+    public void setRight(boolean right) { inputHandler.setRight(right); }
+    public void setJump(boolean jump) { inputHandler.setJump(jump); }
+    public void setDown(boolean down) { inputHandler.setDown(down); }
 
     public PlayerAnimator getAnimator() { return animator; }
 }

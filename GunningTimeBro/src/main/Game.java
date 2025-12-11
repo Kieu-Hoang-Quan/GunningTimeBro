@@ -1,5 +1,6 @@
 package main;
 
+import inputs.InputManager;
 import world.*;
 import entity.player.Player;
 import gamestates.*;
@@ -22,7 +23,7 @@ public class Game implements Runnable {
     private Menu menu;
     private Playing playing;
     private World world;
-
+    private InputManager inputManager;
     // ✔ StateManager mới
     private GameStateManager gsm;
 
@@ -41,7 +42,6 @@ public class Game implements Runnable {
         gamePanel = new GamePanel(this);
         gameWindow = new GameWindow(gamePanel);
         gamePanel.requestFocus();
-
         startGameLoop();
     }
 
@@ -77,10 +77,10 @@ public class Game implements Runnable {
         player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
 
         // STATES
+        inputManager = new InputManager();
         gsm = new GameStateManager();
-
         menu = new Menu(this);
-        playing = new Playing(this, world);
+        playing = new Playing(this, world, inputManager);
         player.loadLvlData(LevelTileConfig.createLevelGrid());
 
 
@@ -155,5 +155,9 @@ public class Game implements Runnable {
 
     public GamePanel getGamePanel() {
         return gamePanel;
+    }
+
+    public InputManager getInputManager() {
+        return inputManager;
     }
 }
