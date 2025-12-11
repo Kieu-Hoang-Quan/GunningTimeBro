@@ -1,7 +1,7 @@
 package main;
 
+import entity.player.Player;
 import world.*;
-import entity.Player;
 import gamestates.*;
 import gamestates.Menu;
 import map.*;
@@ -187,4 +187,3 @@ public class Game implements Runnable {
         return false;
     }
 }
-
