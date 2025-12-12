@@ -3,10 +3,6 @@ package ui;
 import main.Game;
 import java.awt.*;
 
-/**
- * Menu UI renderer - handles all menu rendering.
- * SOLID:  SRP - Only renders menu, no logic
- */
 public class MenuUI {
 
     private final String title;
@@ -55,9 +51,7 @@ public class MenuUI {
         drawHint(g);
     }
 
-    /**
-     * Setup anti-aliasing for smooth rendering
-     */
+
     private void setupRenderingHints(Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -65,9 +59,7 @@ public class MenuUI {
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     }
 
-    /**
-     * Draw gradient background
-     */
+
     private void drawBackground(Graphics2D g) {
         GradientPaint gradient = new GradientPaint(
                 0, 0, bgColorTop,
@@ -77,9 +69,7 @@ public class MenuUI {
         g.fillRect(0, 0, Game. GAME_WIDTH, Game. GAME_HEIGHT);
     }
 
-    /**
-     * Draw menu title with shadow and underline
-     */
+
     private void drawTitle(Graphics2D g) {
         g.setFont(titleFont);
         FontMetrics metrics = g.getFontMetrics(titleFont);
@@ -100,9 +90,7 @@ public class MenuUI {
                 titleX + metrics. stringWidth(title), titleY + 10);
     }
 
-    /**
-     * Draw all menu options
-     */
+
     private void drawOptions(Graphics2D g, int currentSelection, float animationOffset) {
         g.setFont(optionFont);
         FontMetrics metrics = g.getFontMetrics(optionFont);
@@ -119,9 +107,7 @@ public class MenuUI {
         }
     }
 
-    /**
-     * Draw selected option with highlight box and arrow
-     */
+
     private void drawSelectedOption(Graphics2D g, FontMetrics metrics,
                                     String option, int x, int y, float animationOffset) {
         // Highlight box
@@ -149,17 +135,13 @@ public class MenuUI {
         g.drawString(option, x, y);
     }
 
-    /**
-     * Draw normal (unselected) option
-     */
+
     private void drawNormalOption(Graphics2D g, String option, int x, int y) {
         g.setColor(normalText);
         g.drawString(option, x, y);
     }
 
-    /**
-     * Draw arrow indicator for selected option
-     */
+
     private void drawArrow(Graphics2D g, int x, int y) {
         int[] xPoints = {x, x + 15, x};
         int[] yPoints = {y, y + 8, y + 16};
@@ -174,9 +156,7 @@ public class MenuUI {
         g.drawPolygon(xPoints, yPoints, 3);
     }
 
-    /**
-     * Draw hint text at bottom
-     */
+
     private void drawHint(Graphics2D g) {
         g.setFont(hintFont);
         String hint = "↑↓ Navigate  •  ENTER Select";

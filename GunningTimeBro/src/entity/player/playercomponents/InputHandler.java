@@ -1,9 +1,5 @@
 package entity.player. playercomponents;
 
-/**
- * Component lưu trữ input state.
- * SOLID:  SRP - CHỈ lưu input, không có logic
- */
 public class InputHandler {
 
     private boolean left, right, up, down, jump, attack;

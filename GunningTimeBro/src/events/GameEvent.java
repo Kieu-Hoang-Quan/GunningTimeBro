@@ -1,4 +1,5 @@
 package events;
 
-public class GameEvent {
+public class GameEvent
+{
 }

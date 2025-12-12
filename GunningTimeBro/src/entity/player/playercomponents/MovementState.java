@@ -32,7 +32,6 @@ public class MovementState {
         return input.isLeft();
     }
 
-
     public boolean shouldFlipRight() {
         return input.isRight();
     }
