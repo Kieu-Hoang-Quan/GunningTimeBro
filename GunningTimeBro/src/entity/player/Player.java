@@ -120,4 +120,11 @@ public class Player extends Entity {
     public void setDown(boolean down) { inputHandler.setDown(down); }
 
     public PlayerAnimator getAnimator() { return animator; }
+
+    public int getWidth() {
+        return width;
+    }
+
+
+    public int getHeight() { return height;}
 }
