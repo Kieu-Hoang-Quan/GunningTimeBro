@@ -13,6 +13,9 @@ public class    TileMap {
         this.grid = grid;
         this.tileSet = tileSet;
     }
+    public int[][] getGrid() {
+        return grid;
+    }
 
     public int getMapWidthPixels() {
         // dùng TILE_SIZE trong world (64), không dùng 32 trong tileset

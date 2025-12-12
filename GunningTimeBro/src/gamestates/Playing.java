@@ -1,8 +1,14 @@
 package gamestates;
-
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.awt.Rectangle;
 import Gun.Bullet;
 import Gun.GunFactory;
 import Gun.PickupItem;
+import Gun.Gun;
+
 import main.Game;
 import world.Camera;
 import world.World;
@@ -19,6 +25,12 @@ public class Playing extends State {
     private ArrayList<Bullet> bullets = new ArrayList<>();
     private ArrayList<PickupItem> pickups = new ArrayList<>();
     private class PickupItem {
+        public  int WIDTH;
+        public boolean taken;
+        public Object x;
+        public Object y;
+        public int HEIGHT;
+
         public PickupItem(int i, int i1) {
         }
 
@@ -44,22 +56,18 @@ public class Playing extends State {
                 game.getPlayer().getHitbox(),
                 world.getTileMap()
         );
-        // --- update bullets: remove dead ones, then update each ---
-        bullets.removeIf(b -> !b.alive);
-        for (gun.Bullet b : bullets) {
-            b.update(world.getTileMap());
-        }
-
 // --- update pickups: check collision with player hitbox ---
-        Rectangle playerHit = game.getPlayer().getHitbox();
-// use iterator if you want to remove while iterating safely
-        Iterator<gun.PickupItem> it = pickups.iterator();
+        Rectangle2D.Float playerHit = game.getPlayer().getHitbox();
+        Iterator<PickupItem> it = pickups.iterator();
         while (it.hasNext()) {
-            gun.PickupItem p = it.next();
+            PickupItem p = it.next();
+            // assume PickupItem has public fields x,y and public WIDTH, HEIGHT or getter methods
             if (!p.taken && playerHit.intersects(new Rectangle((int)p.x, (int)p.y, p.WIDTH, p.HEIGHT))) {
                 p.taken = true;
-                // give the player a weapon (replace GunFactory method/package if different)
-                game.getPlayer().equipWeapon(GunFactory.createBasicGun(Gun.GunFactory.createBasicGun(game.getGamePanel().getSoundPool()));
+                // give the player a weapon
+                // ensure GamePanel has getSoundPool() (see step 5)
+                Gun gun = GunFactory.createBasicGun(game.getGamePanel().getSoundPool());
+                game.getPlayer().equipWeapon(gun);
                 it.remove(); // remove pickup from list
             }
         }

@@ -8,6 +8,7 @@ import utilz.LoadSave;
 import static utilz.HelpMethods.*;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import static utilz.HelpMethods.CanMoveHere;
@@ -290,7 +291,7 @@ public class Player extends Entity {
     public void setJump(boolean jump) {
         this.jump = jump;
     }
-    public Rectangle getHitbox() {
+    public Rectangle2D.Float getHitbox() {
         return hitbox;
     }
 
