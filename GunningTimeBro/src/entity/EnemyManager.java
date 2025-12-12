@@ -3,11 +3,16 @@ package entity;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+
+import entity.player.Player;
 import main.Game;
 import utilz.LoadSave;
 import utilz.Constants.EnemyConstants;
+
+// ✔✔✔ IMPORT BẮT BUỘC: Để EnemyManager hiểu Enemies và Crabby là gì
+import entity.enemy.Enemies;
+import entity.enemy.Crabby;
 
 public class EnemyManager {
 
@@ -16,146 +21,119 @@ public class EnemyManager {
     private BufferedImage[][] enemySprites;
     private int[][] lvlData;
 
-    // ========= CẤU HÌNH AN TOÀN SPAWN ==========
-    private final int tile = 64;
-    private final int MIN_PLATFORM_SIZE = 8;      // Không spawn trên platform nhỏ
-    private final int NO_SPAWN_LEFT = 300;        // Không spawn đầu map
-    private final int NO_SPAWN_RIGHT_OFFSET = 20; // Không spawn cuối map
+    private final int tile = 64; // Kích thước tile gốc chưa scale (hoặc đã tính toán)
+    // Lưu ý: Nếu game bạn dùng TILES_SIZE public static thì dùng Game.TILES_SIZE sẽ chuẩn hơn
+
+    private final int MIN_PLATFORM_SIZE = 8;
+    private final int NO_SPAWN_LEFT = 300;
+    private final int NO_SPAWN_RIGHT_OFFSET = 20;
 
     public EnemyManager(Game game) {
         this.game = game;
         loadEnemySprites();
     }
 
-    // ============================================================
-    //                     SPAWN ENEMIES
-    // ============================================================
     public void loadEnemies(int[][] lvlData) {
-
         this.lvlData = lvlData;
         enemies.clear();
 
         int rows = lvlData.length;
         int cols = lvlData[0].length;
 
-        int NO_SPAWN_RIGHT = (cols - NO_SPAWN_RIGHT_OFFSET) * tile;
+        // Tính toán giới hạn spawn
+        int NO_SPAWN_RIGHT = (cols - NO_SPAWN_RIGHT_OFFSET) * Game.TILES_SIZE;
 
         for (int r = 0; r < rows; r++) {
-
             int c = 0;
-
             while (c < cols) {
                 int tileId = lvlData[r][c];
 
-                // ============================================
-                //                SPAWN TRÊN PLATFORM
-                // ============================================
-                if (tileId == 20) { // platform tile
-
+                // --- LOGIC SPAWN TRÊN ĐẤT BẰNG (Tile 20) ---
+                if (tileId == 20) {
                     int start = c;
-
                     while (c < cols && lvlData[r][c] == 20) c++;
                     int end = c - 1;
-
                     int width = end - start + 1;
 
-                    // Chỉ spawn platform đủ lớn
                     if (width >= MIN_PLATFORM_SIZE) {
-
                         int mid = (start + end) / 2;
-                        float spawnX = mid * tile;
-                        float spawnY = (r * tile) - 64 + 5;
+                        float spawnX = mid * Game.TILES_SIZE;
+
+                        // ✔ Fix Spawn Y: 30 là chiều cao hitbox mới của Punk
+                        float spawnY = (r * Game.TILES_SIZE) - (30 * Game.SCALE) - 1;
 
                         if (spawnX > NO_SPAWN_LEFT && spawnX < NO_SPAWN_RIGHT) {
-
-                            Rectangle2D.Float hb = new Rectangle2D.Float(spawnX, spawnY, 134, 59);
-
-                            if (!intersectsExisting(hb)) {
+                            if (!intersectsExisting(spawnX, spawnY)) {
                                 enemies.add(new Crabby(spawnX, spawnY));
                             }
                         }
                     }
-
-                } else {
-
-                    // ============================================
-                    //                 SPAWN TRÊN GROUND
-                    // ============================================
+                }
+                // --- LOGIC SPAWN TRÊN RÌA (Tile 73) ---
+                else {
                     if (tileId == 73) {
-
                         boolean isGroundTop = (r == rows - 1 || lvlData[r + 1][c] == 0);
-
                         if (isGroundTop) {
-
                             int start = c;
-
                             while (c < cols && lvlData[r][c] == 73 &&
                                     (r == rows - 1 || lvlData[r + 1][c] == 0))
                                 c++;
-
                             int end = c - 1;
-
                             int width = end - start + 1;
 
                             if (width >= MIN_PLATFORM_SIZE) {
-
                                 int mid = (start + end) / 2;
-
-                                float spawnX = mid * tile;
-                                float spawnY = (r * tile) - 64 + 5;
+                                float spawnX = mid * Game.TILES_SIZE;
+                                float spawnY = (r * Game.TILES_SIZE) - (30 * Game.SCALE) - 1;
 
                                 if (spawnX > NO_SPAWN_LEFT && spawnX < NO_SPAWN_RIGHT) {
-
-                                    Rectangle2D.Float hb = new Rectangle2D.Float(spawnX, spawnY, 134, 59);
-
-                                    if (!intersectsExisting(hb)) {
+                                    if (!intersectsExisting(spawnX, spawnY)) {
                                         enemies.add(new Crabby(spawnX, spawnY));
                                     }
                                 }
                             }
-
                             continue;
                         }
                     }
-
                     c++;
                 }
             }
         }
-
-        System.out.println("Spawned enemies: " + enemies.size());
     }
 
-    // ============================================================
-    private boolean intersectsExisting(Rectangle2D.Float hb) {
+    // Helper check spawn chồng nhau
+    private boolean intersectsExisting(float x, float y) {
+        // Tạo hitbox ảo để check
+        Rectangle2D.Float hb = new Rectangle2D.Float(x, y, 50, 50);
         for (Enemies e : enemies) {
             if (hb.intersects(e.getHitbox())) return true;
         }
         return false;
     }
 
-    // ============================================================
-    //                 LOAD SPRITES
-    // ============================================================
     private void loadEnemySprites() {
         enemySprites = new BufferedImage[5][];
 
         loadSpriteSet(0, "Enemies/Idle.png");
-        loadSpriteSet(1, "Enemies/Walk.png");
+        loadSpriteSet(1, "Enemies/Walk.png"); // Hoặc Run.png tùy tên file của bạn
         loadSpriteSet(2, "Enemies/Attack.png");
-        loadSpriteSet(3, "Enemies/Hurt.png");
-        loadSpriteSet(4, "Enemies/Death.png");
+        loadSpriteSet(3, "Enemies/Hurt.png"); // Hoặc Hit.png
+        loadSpriteSet(4, "Enemies/Death.png"); // Hoặc Dead.png
     }
 
     private void loadSpriteSet(int state, String path) {
-        int amount = EnemyConstants.GetSpriteAmount(0, state);
+        // Lấy số lượng frame chuẩn từ Constants (đã fix 4, 6, 6...)
+        int amount = EnemyConstants.GetSpriteAmount(EnemyConstants.CRABBY, state);
         BufferedImage atlas = LoadSave.GetSpriteAtlas(path);
 
-        if (atlas == null)
-            atlas = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
+        if (atlas == null) {
+            System.out.println("Lỗi load ảnh: " + path);
+            return;
+        }
 
         enemySprites[state] = new BufferedImage[amount];
 
+        // Cắt ảnh tự động dựa trên chiều rộng ảnh / số lượng frame
         int fw = atlas.getWidth() / amount;
         int fh = atlas.getHeight();
 
@@ -164,56 +142,32 @@ public class EnemyManager {
         }
     }
 
-    // ============================================================
-    //                     UPDATE & DRAW
-    // ============================================================
     public void update() {
+        Player player = game.getPlayer();
+        if (player == null) return;
+
         for (Enemies e : enemies) {
-            if (e.isAlive()) {
+            if (e.isActive()) {
+                // Enemy tự gọi các component (Physics, AI, Animator) bên trong hàm update này
+                e.update(lvlData, player);
 
-                e.update(lvlData);
-
-                if (e.getEnemyState() == 2 &&
+                // Logic va chạm
+                if (e.getEnemyState() == EnemyConstants.ATTACK &&
                         !e.attackChecked &&
                         e.isAttackFrame()) {
 
-                    game.getPlayer().receiveDamageFromEnemy(
-                            e.getAttackBox(), e.attackDamage
-                    );
+                    game.PlayerHit(e.getAttackBox(), e.attackDamage);
                     e.attackChecked = true;
                 }
             }
         }
+        enemies.removeIf(e -> !e.isActive());
     }
 
     public void draw(Graphics g, int xOff) {
         for (Enemies e : enemies) {
-            if (e.isAlive()) {
-
-                int state = e.getEnemyState();
-                int frame = e.getAniIndex();
-
-                int W = 144, H = 64;
-
-                float hbW = e.getHitbox().width;
-                float hbH = e.getHitbox().height;
-
-                float xOffDraw = (W - hbW) / 2;
-                float yOffDraw = (H - hbH);
-
-                int x = (int) (e.getHitbox().x - xOffDraw - xOff);
-                int y = (int) (e.getHitbox().y - yOffDraw);
-
-                int flip = e.isFlip() ? -1 : 1;
-
-                g.drawImage(
-                        enemySprites[state][frame],
-                        x + (flip == -1 ? W : 0),
-                        y,
-                        W * flip, H,
-                        null
-                );
-            }
+            // Gọi hàm render của Enemy -> nó sẽ tự gọi EnemyRender
+            e.render(g, enemySprites, xOff);
         }
     }
 
@@ -221,8 +175,3 @@ public class EnemyManager {
         return enemies;
     }
 }
-
-
-
-
-
