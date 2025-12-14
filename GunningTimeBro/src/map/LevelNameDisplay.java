@@ -18,7 +18,7 @@ public class LevelNameDisplay implements  LevelZoneListener {
     public void render(Graphics2D g) {
         if (timer <= 0) return;
 
-        g.setFont(new Font("Arial", Font.BOLD, 32));
+        g.setFont(new Font("Arial", Font.BOLD, 50));
         g.setColor(Color.RED);
 
         FontMetrics fm = g.getFontMetrics();
