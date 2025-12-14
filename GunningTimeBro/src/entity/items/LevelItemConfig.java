@@ -68,12 +68,12 @@ public class LevelItemConfig {
                 new ItemSpawnPoint(
                         new LightningPowerItem(),
                         ItemSprites.Paths.LIGHTNING_POWER,
-                        155,7
+                        155,5
                 ),
                 new ItemSpawnPoint(
                         new HealthPotionItem(),
                         ItemSprites. Paths.HEALTH_POTION,
-                        155, 8
+                        155, 9
                 ),
                 new ItemSpawnPoint(
                         new LightningPowerItem(),
@@ -88,7 +88,12 @@ public class LevelItemConfig {
                 new ItemSpawnPoint(
                         new DamageBoostItem(),
                         ItemSprites.Paths.DAMAGE_BOOST,
-                        223, 3
+                        223, 1
+                ),
+                new ItemSpawnPoint(
+                        new LightningPowerItem(),
+                        ItemSprites.Paths.LIGHTNING_POWER,
+                        233,8
                 ),
         };
     }
