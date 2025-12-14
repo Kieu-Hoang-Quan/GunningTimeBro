@@ -19,7 +19,7 @@ public class LevelNameDisplay implements  LevelZoneListener {
         if (timer <= 0) return;
 
         g.setFont(new Font("Arial", Font.BOLD, 32));
-        g.setColor(Color.WHITE);
+        g.setColor(Color.RED);
 
         FontMetrics fm = g.getFontMetrics();
         int x = (800 - fm.stringWidth(currentText)) / 2;
