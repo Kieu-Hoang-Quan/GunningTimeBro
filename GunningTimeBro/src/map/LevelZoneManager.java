@@ -19,13 +19,13 @@ public class LevelZoneManager {
 
         zones.add(zoneByTiles(
                 1,          // tile start
-                116,         // width = 15 tiles
+                116,         // width
                 "Level 1 "
         ));
 
         zones.add(zoneByTiles(
                 117,
-                100,
+                83,
                 "Level 2"
         ));
 
