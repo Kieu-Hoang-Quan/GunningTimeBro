@@ -2,6 +2,7 @@ package main;
 
 import gamestates.GameStateManager;
 import inputs.InputManager;
+import ui.components.HealthBar;
 import world.*;
 import entity.player.Player;
 import entity.enemy.EnemyManager;
@@ -90,7 +91,7 @@ public class Game implements Runnable {
 
         System.out. println("[Game] Creating UI...");
         healthBarUI = new HealthBarUI(player);
-        System.out.println("[Game] HealthBarUI created");
+        System.out.println("[Game] HealthBar created");
 
         itemNotificationUI = new ItemNotificationUI();
         System.out.println("[Game] ItemNotificationUI created");
@@ -153,7 +154,6 @@ public class Game implements Runnable {
         enemyManager.loadEnemies(LevelTileConfig.createLevelGrid());
         player.setEnemies(enemyManager.getEnemies());
 
-        // ✅ FIX: Reset items!
         System.out.println("[Game] Resetting items...");
         world.getItemManager().clear();
         world.getItemManager().loadItemsForLevel(1);
