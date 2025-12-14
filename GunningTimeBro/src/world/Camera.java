@@ -17,7 +17,6 @@ public class Camera {
         x = 0;
     }
 
-    // cập nhật camera dựa trên hitbox player + tilemap hiện tại
     public void update(Rectangle2D.Float playerHitbox, TileMap tileMap) {
         // tâm X của player trong world
         float playerCenterX = playerHitbox.x + playerHitbox.width / 2.0f;

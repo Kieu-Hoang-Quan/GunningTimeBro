@@ -13,16 +13,6 @@ public class BgLayer {
         this.yOffset = yOffset;
     }
 
-//    public void render(Graphics2D g2, int camX, int windowWidth, int windowHeight) {
-//        if (sprite == null) return;
-//
-//        int imgW = sprite.getWidth();
-//        int drawX = (int) (-camX * scrollSpeedX);
-//
-//        for (int x = drawX; x < windowWidth; x += imgW) {
-//            g2.drawImage(sprite, x, yOffset, null);
-//        }
-//    }
     public void render(Graphics2D g2, int camX, int windowWidth, int windowHeight) {
         if (sprite == null) return;
 
