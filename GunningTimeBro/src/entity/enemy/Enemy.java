@@ -1,13 +1,13 @@
-package entity. enemy;
+package entity.enemy;
 
 import entity.Entity;
 import static utilz.Constants.EnemyConstants.*;
 import entity.components.EffectRenderer;
-import entity.components. HealthComponent;
+import entity.components.HealthComponent;
 import entity.player.Player;
 
 import java.awt.*;
-import java. awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public abstract class Enemy extends Entity {
@@ -34,7 +34,7 @@ public abstract class Enemy extends Entity {
     protected float attackTriggerRange = 45f;
 
     private int deathTimer = 0;
-    private static final int DEATH_FADE_TIME = 60;  // 1 second at 60 FPS
+    private static final int DEATH_FADE_TIME = 60;
 
     public Enemy(float x, float y, int width, int height, int enemyType) {
         super(x, y, width, height);
@@ -43,25 +43,27 @@ public abstract class Enemy extends Entity {
         this.physics = new EnemyPhysics(this);
         this.animator = new EnemyAnimator(this);
         this.renderer = new EnemyRender();
-        this.healthComponent = new HealthComponent(this, 33f);  //1/3 OF PLAYER (100/3 = 33)
+        this.healthComponent = new HealthComponent(this, 33f);
         this.effectRenderer = new EffectRenderer();
 
         initHitbox(x, y, width - 10, height - 5);
         attackBox = new Rectangle2D.Float(x, y, width, height);
     }
 
+    // ✅ PHƯƠNG THỨC TRỪU TƯỢNG (ABSTRACT)
+    // Các class con (Crabby, Shark...) BẮT BUỘC phải tự viết logic hành vi của mình.
+    public abstract void updateBehavior(int[][] lvlData, Player player);
+
     public void update(int[][] lvlData, Player player) {
         healthComponent.update(1f / 60f);
 
-        if (! healthComponent.isAlive() && enemyState != DEAD) {
+        if (!healthComponent.isAlive() && enemyState != DEAD) {
             setNewState(DEAD);
         }
 
         if (enemyState == DEAD) {
             animator.update();
             deathTimer++;
-
-            // DISAPPEAR AFTER FADE
             if (deathTimer >= DEATH_FADE_TIME) {
                 active = false;
             }
@@ -69,7 +71,10 @@ public abstract class Enemy extends Entity {
         }
 
         physics.update(lvlData);
-        updateStateAI(player);
+
+        // Gọi hành vi riêng của từng con quái
+        updateBehavior(lvlData, player);
+
         updateAttackBox();
         animator.update();
     }
@@ -78,50 +83,19 @@ public abstract class Enemy extends Entity {
         renderer.render(g, this, sprites, xOff);
     }
 
-    protected void updateStateAI(Player player) {
-        if (enemyState == DEAD) return;
-
-        if (enemyState == HIT) {
-            if (animator.getAniIndex() >= GetSpriteAmount(enemyType, HIT) - 1)
-                setNewState(RUNNING);
-            return;
-        }
-
-        float px = player.getHitbox().x;
-        float ex = hitbox.x;
-        float distX = Math.abs(px - ex);
-        float distY = Math.abs(player.getHitbox().y - hitbox.y);
-        boolean sameLevel = distY < hitbox.height * 0.6f;
-
-        if (sameLevel && distX < attackTriggerRange) {
-            flip = px < ex;
-            setNewState(ATTACK);
-            return;
-        }
-
-        if (sameLevel && distX < chaseRange) {
-            flip = px < ex;
-            setNewState(RUNNING);
-            return;
-        }
-
-        setNewState(RUNNING);
-    }
-
     protected void updateAttackBox() {
         float w = hitbox.width;
         float h = hitbox.height;
-
-        float effectiveRange = (enemyState == ATTACK) ? w :  w * 0.6f;
+        float effectiveRange = (enemyState == ATTACK) ? w : w * 0.6f;
 
         attackBox.width = effectiveRange;
-        attackBox. height = h * 0.5f;
+        attackBox.height = h * 0.5f;
         attackBox.y = hitbox.y + (h - attackBox.height) / 2;
 
         if (flip) {
-            attackBox.x = hitbox. x - attackBox.width + 10;
+            attackBox.x = hitbox.x - attackBox.width + 10;
         } else {
-            attackBox.x = hitbox. x + w - 10;
+            attackBox.x = hitbox.x + w - 10;
         }
     }
 
@@ -136,6 +110,7 @@ public abstract class Enemy extends Entity {
         return animator.getAniIndex() == 3;
     }
 
+    // Getters & Setters
     public int getDeathTimer() { return deathTimer; }
     public HealthComponent getHealthComponent() { return healthComponent; }
     public void setActive(boolean active) { this.active = active; }
