@@ -1,6 +1,8 @@
 package gamestates;
 
 import main.Game;
+import map.LevelNameDisplay;
+import map.LevelZoneManager;
 import world.Camera;
 import world.World;
 
@@ -12,12 +14,19 @@ public class Playing extends State {
     private final Game game;
     private World world;
     private final Camera camera;    // thêm camera
+    private LevelZoneManager zoneManager;
+    private LevelNameDisplay levelDisplay;
 
     public Playing(Game game, World world) {
         super(game);
         this.game = game;
         this.world = world;
         this.camera = new Camera(); // Playing tự tạo camera
+        zoneManager = new LevelZoneManager();
+        levelDisplay = new LevelNameDisplay();
+
+        zoneManager.addListener(levelDisplay);
+        zoneManager.setupLevel1Zones();
     }
 
     @Override
@@ -29,6 +38,8 @@ public class Playing extends State {
                 game.getPlayer().getHitbox(),
                 world.getTileMap()
         );
+        zoneManager.update(game.getPlayer().getHitbox());
+        levelDisplay.update();
     }
 
     @Override
@@ -43,6 +54,7 @@ public class Playing extends State {
 
         // vẽ player
         game.getPlayer().render(g, camX);
+        levelDisplay.render(g);
     }
 
     @Override
