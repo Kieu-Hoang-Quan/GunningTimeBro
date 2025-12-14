@@ -22,7 +22,7 @@ public class LevelNameDisplay implements  LevelZoneListener {
         g.setColor(Color.RED);
 
         FontMetrics fm = g.getFontMetrics();
-        int x = (800 - fm.stringWidth(currentText)) / 2;
+        int x = (1600 - fm.stringWidth(currentText)) / 2;
         int y = 100;
 
         g.drawString(currentText, x, y);
