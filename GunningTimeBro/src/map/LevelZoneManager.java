@@ -17,27 +17,21 @@ public class LevelZoneManager {
     public void setupLevel1Zones() {
         zones.clear();
 
-        zones.add(new LevelZone(
-                0,
-                0,
-                500 * Game.SCALE,
-                Game.GAME_HEIGHT,
-                "Level 1"
+        zones.add(zoneByTiles(
+                1,          // tile start
+                100,         // width = 15 tiles
+                "Level 1 "
         ));
 
-        zones.add(new LevelZone(
-                2500 * Game.SCALE,
-                0,
-                1000 * Game.SCALE,
-                Game.GAME_HEIGHT,
+        zones.add(zoneByTiles(
+                101,
+                100,
                 "Level 2"
         ));
 
-        zones.add(new LevelZone(
-                3500 * Game.SCALE,
-                0,
-                1000 * Game.SCALE,
-                Game.GAME_HEIGHT,
+        zones.add(zoneByTiles(
+                201,
+                100,
                 "Level 3"
         ));
     }
@@ -59,5 +53,18 @@ public class LevelZoneManager {
         for (LevelZoneListener l : listeners) {
             l.onEnterZone(levelName);
         }
+    }
+    private LevelZone zoneByTiles(
+            int startTileX,
+            int tileWidth,
+            String name
+    ) {
+        return new LevelZone(
+                startTileX * Game.TILES_SIZE,
+                0,
+                tileWidth * Game.TILES_SIZE,
+                Game.GAME_HEIGHT,
+                name
+        );
     }
 }
