@@ -60,6 +60,36 @@ public class LevelItemConfig {
                         ItemSprites.Paths.DAMAGE_BOOST,
                         30, 8  // On ground
                 ),
+                new ItemSpawnPoint(
+                        new DamageBoostItem(),
+                        ItemSprites.Paths.DAMAGE_BOOST,
+                        61, 8
+                ),
+                new ItemSpawnPoint(
+                        new LightningPowerItem(),
+                        ItemSprites.Paths.LIGHTNING_POWER,
+                        155,7
+                ),
+                new ItemSpawnPoint(
+                        new HealthPotionItem(),
+                        ItemSprites. Paths.HEALTH_POTION,
+                        155, 8
+                ),
+                new ItemSpawnPoint(
+                        new LightningPowerItem(),
+                        ItemSprites.Paths.LIGHTNING_POWER,
+                        73,3
+                ),
+                new ItemSpawnPoint(
+                        new HealthPotionItem(),
+                        ItemSprites. Paths.HEALTH_POTION,
+                        51, 8
+                ),
+                new ItemSpawnPoint(
+                        new DamageBoostItem(),
+                        ItemSprites.Paths.DAMAGE_BOOST,
+                        223, 3
+                ),
         };
     }
 
