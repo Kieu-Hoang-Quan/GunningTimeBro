@@ -18,6 +18,7 @@ public class InputManager {
         JUMP,
         CROUCH,
         ATTACK,
+        LIGHTNING,
         RELOAD,
         MENU,
         SELECT,
@@ -51,6 +52,7 @@ public class InputManager {
 
         // Combat
         keyBindings.put(KeyEvent.VK_J, Action.ATTACK);
+        keyBindings.put(KeyEvent.VK_K, Action.LIGHTNING);
         keyBindings.put(KeyEvent.VK_R, Action.RELOAD);
 
         // Menu

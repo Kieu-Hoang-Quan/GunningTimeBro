@@ -1,40 +1,45 @@
 package entity.player.playercomponents;
 
-import entity.player.playercomponents.MovementState;
-
 import static utilz.Constants.PlayerConstants.*;
+
 public class AnimationState {
 
     private MovementState movement;
     private boolean attacking;
+    private boolean usingLightning;
 
     public AnimationState(MovementState movement) {
         this.movement = movement;
         this.attacking = false;
+        this.usingLightning = false;
     }
 
-
     public int getCurrentAction() {
-        // Priority 1: Attacking
+        // ✅ Return LIGHTNING constant
+        if (usingLightning) {
+            return LIGHTNING;
+        }
+
+        if (attacking && movement.isMoving() && ! movement.isInAir()) {
+            return HITRUN;
+        }
+
         if (attacking) {
             return HIT;
         }
 
-        // Priority 2: In Air
         if (movement.isInAir()) {
             if (movement.getAirSpeed() < 0) {
-                return JUMP;  // Going up
+                return JUMP;
             } else {
-                return FALLING;  // Going down
+                return FALLING;
             }
         }
 
-        // Priority 3: Moving
         if (movement.isMoving()) {
             return RUNNING;
         }
 
-        // Priority 4: Idle
         return IDLE;
     }
 
@@ -42,7 +47,15 @@ public class AnimationState {
         this.attacking = attacking;
     }
 
+    public void setUsingLightning(boolean usingLightning) {
+        this.usingLightning = usingLightning;
+    }
+
     public boolean isAttacking() {
         return attacking;
+    }
+
+    public boolean isUsingLightning() {
+        return usingLightning;
     }
 }

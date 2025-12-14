@@ -4,18 +4,14 @@ import static utilz.Constants.EnemyConstants.*;
 
 public class EnemyAnimator {
 
-    private Enemies enemy;
+    private Enemy enemy;
     private int aniIndex, aniTick;
-
-    // Tốc độ animation
     private int walkAniSpeed = 15;
     private int attackAniSpeed = 28;
-
-    // Logic giữ frame đánh
     private int holdAttackFrameTicks = 7;
     private int holdTick = 0;
 
-    public EnemyAnimator(Enemies enemy) {
+    public EnemyAnimator(Enemy enemy) {
         this.enemy = enemy;
     }
 
@@ -31,29 +27,21 @@ public class EnemyAnimator {
 
             int maxFrames = GetSpriteAmount(enemyType, state);
 
-            if (state == ATTACK) {
-                // Logic giữ frame cuối khi đánh
-                if (aniIndex >= maxFrames) {
+            if (aniIndex >= maxFrames) {
+                if (state == ATTACK) {
                     aniIndex = maxFrames - 1;
                     holdTick++;
                     if (holdTick >= holdAttackFrameTicks) {
                         holdTick = 0;
                         enemy.setAttackChecked(false);
-                        enemy.setNewState(RUNNING); // Đánh xong quay về chạy
+                        enemy.setNewState(RUNNING);
                     }
-                    return;
-                }
-            }
-            else if (state == DEAD) {
-                // Logic chết xong thì active = false
-                if (aniIndex >= maxFrames) {
+                } else if (state == DEAD) {
                     aniIndex = maxFrames - 1;
                     enemy.setActive(false);
+                } else {
+                    aniIndex = 0;
                 }
-            }
-            else {
-                // Loop các trạng thái khác (Idle, Run, Hit)
-                if (aniIndex >= maxFrames) aniIndex = 0;
             }
         }
     }

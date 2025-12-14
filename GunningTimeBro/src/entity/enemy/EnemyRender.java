@@ -1,42 +1,48 @@
 package entity.enemy;
 
-import main.Game;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import static utilz.Constants.EnemyConstants.*;
 
 public class EnemyRender {
 
-    public void render(Graphics g, Enemies enemy, BufferedImage[][] sprites, int xOff) {
-        if (!enemy.isActive()) return;
+    public void render(Graphics g, Enemy enemy, BufferedImage[][] sprites, int xOff) {
+        if (! enemy.isActive()) return;
 
         int state = enemy.getEnemyState();
         int frame = enemy.getAnimator().getAniIndex();
 
-        // Kiểm tra an toàn để tránh lỗi Crash
         if (state >= sprites.length || frame >= sprites[state].length) return;
 
-        // Tính vị trí vẽ
         int tempX = (int) (enemy.getHitbox().x - enemy.getXDrawOffset() - xOff);
         int tempY = (int) (enemy.getHitbox().y - enemy.getYDrawOffset());
 
         int W = CRABBY_WIDTH;
         int H = CRABBY_HEIGHT;
 
-        if (enemy.isFlip()) {
-            // Logic vẽ lật hình (Flip) chuẩn xác
-            // Công thức: tempX + Width + (Offset cân bằng)
-            int flipX = (int)(2 * enemy.getXDrawOffset() + enemy.getHitbox().width - W);
+        BufferedImage img = sprites[state][frame];
 
-            g.drawImage(sprites[state][frame],
-                    tempX + W + flipX, tempY, -W, H, null);
-        } else {
-            // Vẽ bình thường
-            g.drawImage(sprites[state][frame],
-                    tempX, tempY, W, H, null);
+        // FADE EFFECT WHEN DEAD
+        if (state == DEAD) {
+            Graphics2D g2d = (Graphics2D) g;
+            float alpha = 1.0f - (enemy.getDeathTimer() / 60f);  // Fade over 60 frames
+            if (alpha < 0) alpha = 0;
+
+            AlphaComposite ac = AlphaComposite. getInstance(AlphaComposite.SRC_OVER, alpha);
+            g2d.setComposite(ac);
         }
 
-        // Uncomment dòng dưới nếu muốn xem khung va chạm
-        // enemy.drawDebug(g);
+        if (enemy.isFlip()) {
+            int flipX = (int)(2 * enemy.getXDrawOffset() + enemy.getHitbox().width - W);
+            g.drawImage(img, tempX + W + flipX, tempY, -W, H, null);
+        } else {
+            g.drawImage(img, tempX, tempY, W, H, null);
+        }
+
+        // RESET ALPHA
+        if (state == DEAD) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite. SRC_OVER, 1.0f));
+        }
     }
 }

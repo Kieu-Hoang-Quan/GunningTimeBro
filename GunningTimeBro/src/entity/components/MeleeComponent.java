@@ -1,9 +1,10 @@
-package entity. components;
+package entity.components;
 
 import entity.Entity;
 import entity.player.Player;
-import entity.enemy.*;
-
+import entity.enemy.Enemy;
+import events.EventBus;
+import events.MeleeAttackEvent;
 
 public class MeleeComponent {
 
@@ -14,6 +15,11 @@ public class MeleeComponent {
     private float timeSinceAttack;
     private int comboCount;
     private int maxCombo = 5;
+    private EventBus eventBus;
+
+    private static final float NORMAL_ATTACK_MULTIPLIER = 1.0f;
+    private static final float RUNNING_ATTACK_MULTIPLIER = 1.67f;
+    private static final float LIGHTNING_ATTACK_MULTIPLIER = 6.67f;
 
     public MeleeComponent(Entity owner, float baseDamage) {
         this.owner = owner;
@@ -22,23 +28,41 @@ public class MeleeComponent {
         this.attackCooldown = 0.5f;
         this.timeSinceAttack = attackCooldown;
         this. comboCount = 0;
+        this.eventBus = EventBus.getInstance();
     }
 
     public void update(float deltaTime) {
         timeSinceAttack += deltaTime;
 
-        // Reset combo after 2 seconds of no attacks
         if (timeSinceAttack > 2.0f) {
             comboCount = 0;
         }
     }
 
+    public float calculateDamage(int attackType) {
+        float typeMultiplier = getAttackTypeMultiplier(attackType);
+        float comboBonus = 1 + (comboCount * 0.1f);
+        float finalDamage = baseDamage * typeMultiplier * damageMultiplier * comboBonus;
+        return finalDamage;
+    }
+
+    private float getAttackTypeMultiplier(int attackType) {
+        switch (attackType) {
+            case 6:
+                return LIGHTNING_ATTACK_MULTIPLIER;
+            case 5:
+                return RUNNING_ATTACK_MULTIPLIER;
+            case 4:
+                return NORMAL_ATTACK_MULTIPLIER;
+            default:
+                return NORMAL_ATTACK_MULTIPLIER;
+        }
+    }
 
     public void attack(Entity target) {
         if (timeSinceAttack < attackCooldown) return;
         if (target == null) return;
 
-        // Calculate damage:  base * multiplier * combo
         float comboBonus = 1 + (comboCount * 0.1f);
         float finalDamage = baseDamage * damageMultiplier * comboBonus;
 
@@ -51,10 +75,7 @@ public class MeleeComponent {
                 comboCount = maxCombo;
             }
 
-            System.out.println("[MELEE] Attack!  Damage: " + (int)finalDamage +
-                    " (Base:" + (int)baseDamage +
-                    " x" + damageMultiplier + " boost" +
-                    " x" + comboBonus + " combo)");
+            eventBus.publish(new MeleeAttackEvent(owner, target, finalDamage, comboCount));
         }
     }
 
@@ -62,12 +83,12 @@ public class MeleeComponent {
         if (target instanceof Player) {
             Player player = (Player) target;
             if (player.getHealthComponent().isAlive()) {
-                player.getHealthComponent().takeDamage(damage, owner);
+                player. getHealthComponent().takeDamage(damage, owner);
                 return true;
             }
         } else if (target instanceof Enemy) {
             Enemy enemy = (Enemy) target;
-            if (enemy.getHealthComponent().isAlive()) {
+            if (enemy. getHealthComponent().isAlive()) {
                 enemy.getHealthComponent().takeDamage(damage, owner);
                 return true;
             }
@@ -77,12 +98,6 @@ public class MeleeComponent {
 
     public void setDamageMultiplier(float multiplier) {
         this.damageMultiplier = multiplier;
-        System.out.println("[MELEE] Damage multiplier:   " + multiplier + "x");
-    }
-
-    public void addDamageBoost(float amount) {
-        this.damageMultiplier += amount;
-        System.out.println("[MELEE] Damage boost!  Now: " + damageMultiplier + "x");
     }
 
     public float getDamageMultiplier() {
@@ -99,5 +114,12 @@ public class MeleeComponent {
 
     public float getCurrentDamage() {
         return baseDamage * damageMultiplier;
+    }
+
+    public void incrementCombo() {
+        comboCount++;
+        if (comboCount > maxCombo) {
+            comboCount = maxCombo;
+        }
     }
 }

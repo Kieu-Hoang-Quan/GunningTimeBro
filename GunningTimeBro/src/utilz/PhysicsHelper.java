@@ -7,10 +7,10 @@ public class PhysicsHelper {
 
     public static boolean canMoveHere(float x, float y, float width, float height,
                                       int[][] lvlData, int tileSize) {
-        return ! isSolid(x, y, lvlData, tileSize) &&
+        return !isSolid(x, y, lvlData, tileSize) &&
                 !isSolid(x + width, y + height, lvlData, tileSize) &&
                 !isSolid(x + width, y, lvlData, tileSize) &&
-                ! isSolid(x, y + height, lvlData, tileSize);
+                !isSolid(x, y + height, lvlData, tileSize);
     }
 
 
@@ -39,7 +39,7 @@ public class PhysicsHelper {
         return value != 0;  // 0 = air, non-zero = solid
     }
 
-    public static float getEntityXPosNextToWall(Rectangle2D. Float hitbox,
+    public static float getEntityXPosNextToWall(Rectangle2D.Float hitbox,
                                                 float xSpeed, int tileSize) {
         int currentTile = (int) (hitbox.x / tileSize);
 
@@ -73,9 +73,23 @@ public class PhysicsHelper {
                                           int[][] lvlData, int tileSize) {
         boolean leftCorner = isSolid(hitbox.x, hitbox.y + hitbox.height + 1,
                 lvlData, tileSize);
-        boolean rightCorner = isSolid(hitbox.x + hitbox.width, hitbox.y + hitbox. height + 1,
+        boolean rightCorner = isSolid(hitbox.x + hitbox.width, hitbox.y + hitbox.height + 1,
                 lvlData, tileSize);
 
         return leftCorner || rightCorner;
+    }
+
+    public static boolean isFloor(Rectangle2D.Float hitbox, float xSpeed, int[][] lvlData, int tileSize) {
+        if (xSpeed > 0) {
+            // Moving right - check right edge
+            float checkX = hitbox.x + hitbox.width + xSpeed;
+            float checkY = hitbox.y + hitbox.height + 1;
+            return isSolid(checkX, checkY, lvlData, tileSize);
+        } else {
+            // Moving left - check left edge
+            float checkX = hitbox.x + xSpeed;
+            float checkY = hitbox.y + hitbox.height + 1;
+            return isSolid(checkX, checkY, lvlData, tileSize);
+        }
     }
 }

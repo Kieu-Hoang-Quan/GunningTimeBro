@@ -37,12 +37,6 @@ public class MenuUI {
         this.options = options;
     }
 
-    /**
-     * Render complete menu.
-     * @param g Graphics context
-     * @param currentSelection Current selected option index
-     * @param animationOffset Animation value for arrow
-     */
     public void render(Graphics2D g, int currentSelection, float animationOffset) {
         setupRenderingHints(g);
         drawBackground(g);

@@ -1,5 +1,6 @@
 package entity.player;
 
+import entity.components.EffectRenderer;
 import main.Game;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -9,12 +10,13 @@ public class PlayerRender {
     // Offset vẽ hình (căn chỉnh hitbox với hình ảnh)
     private float xDrawOffset = 21 * Game.SCALE;
     private float yDrawOffset = 25 * Game.SCALE;
+    private EffectRenderer effectRenderer;
 
     public void render(Graphics g, Player player, int camX) {
         BufferedImage currentFrame = player.getAnimator().getCurrentFrame();
         Rectangle2D.Float hitbox = player.getHitbox();
 
-        int spriteW = player.getWidth(); // hoặc kích thước gốc của sprite nếu muốn scale khác
+        int spriteW = player.getWidth();
         int spriteH = player.getHeight();
 
         int drawY = (int) (hitbox.y - yDrawOffset);

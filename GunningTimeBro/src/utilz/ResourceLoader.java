@@ -3,40 +3,53 @@ package utilz;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java. util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
 
 public class ResourceLoader {
+
+    // ════════════════════════════════════════════════════════
+    //  SPRITE PATH CONSTANTS
+    // ════════════════════════════════════════════════════════
+
     public static class PlayerSprites {
-        public static final String IDLE = "Player/Idle1. png";
+        public static final String IDLE = "Player/Idle1.png";
         public static final String RUN = "Player/Run1.png";
-        public static final String ATTACK = "Player/Biker_attack1.png";
+        public static final String ATTACK = "Player/Attack1.png";
         public static final String JUMP = "Player/Jump1.png";
+        public static final String ATTACK_RUN = "Player/Attack1.png";  // ✅ Use Attack1 as fallback
+        public static final String SUPERPOWER = "Player/Attack1.png";  // ✅ Use Attack1 as fallback
     }
 
     public static class EnemySprites {
-        // Thêm enemy sprites sau
+        public static final String IDLE = "Enemies/Idle. png";
+        public static final String WALK = "Enemies/Walk.png";
+        public static final String ATTACK = "Enemies/Attack. png";
+        public static final String HURT = "Enemies/Hurt.png";
+        public static final String DEATH = "Enemies/Death.png";
     }
 
     public static class WorldSprites {
-        // Thêm world sprites sau
+        // Add world sprites here
     }
 
+    // ════════════════════════════════════════════════════════
+    //  CACHING SYSTEM
+    // ════════════════════════════════════════════════════════
 
     private static final Map<String, BufferedImage> cache = new HashMap<>();
     private static boolean enableCache = true;
 
-
     public static BufferedImage loadSprite(String fileName) {
         // Check cache first
         if (enableCache && cache.containsKey(fileName)) {
-            return cache.get(fileName);
+            return cache. get(fileName);
         }
 
         BufferedImage img = loadImageFromResources(fileName);
 
-        // Cache if loaded successfully
+        // ✅ Cache successful loads
         if (img != null && enableCache) {
             cache. put(fileName, img);
         }
@@ -47,7 +60,7 @@ public class ResourceLoader {
     private static BufferedImage loadImageFromResources(String fileName) {
         InputStream is = null;
         try {
-            is = ResourceLoader. class.getResourceAsStream("/" + fileName);
+            is = ResourceLoader.class.getResourceAsStream("/" + fileName);
 
             if (is == null) {
                 System.err.println("[RESOURCE] File not found: " + fileName);
@@ -59,7 +72,7 @@ public class ResourceLoader {
             return img;
 
         } catch (IOException e) {
-            System.err.println("[RESOURCE] Error loading: " + fileName);
+            System.err.println("[RESOURCE] Error loading:  " + fileName);
             e.printStackTrace();
             return createErrorPlaceholder();
 
@@ -68,17 +81,15 @@ public class ResourceLoader {
         }
     }
 
-
     private static void closeStream(InputStream is) {
         if (is != null) {
             try {
-                is. close();
+                is.close();
             } catch (IOException e) {
                 System.err.println("[RESOURCE] Error closing stream");
             }
         }
     }
-
 
     private static BufferedImage createErrorPlaceholder() {
         BufferedImage img = new BufferedImage(48, 48, BufferedImage. TYPE_INT_ARGB);

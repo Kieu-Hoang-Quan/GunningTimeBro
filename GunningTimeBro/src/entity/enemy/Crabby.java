@@ -1,10 +1,9 @@
 package entity.enemy;
 
-import entity.player.Player;
 import main.Game;
 import static utilz.Constants.EnemyConstants.*;
 
-public class Crabby extends Enemies {
+public class Crabby extends Enemy {
 
     public Crabby(float x, float y) {
         super(x, y, CRABBY_WIDTH, CRABBY_HEIGHT, CRABBY);

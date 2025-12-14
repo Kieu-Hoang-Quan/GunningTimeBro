@@ -6,31 +6,22 @@ import ui.MenuUI;
 import java.awt.*;
 import java. awt.event.KeyEvent;
 
-
 public class Menu extends State {
 
-    // Menu options
     private final String[] options = {"Play", "Quit"};
     private int currentSelection = 0;
-
-    // Animation
     private float animationOffset = 0;
-
-    // UI renderer
     private final MenuUI menuUI;
-
 
     public Menu(Game game) {
         super(game);
         this.menuUI = new MenuUI("Gunning Time Bro!", options);
     }
 
-
     @Override
     public void update() {
         updateAnimation();
     }
-
 
     private void updateAnimation() {
         animationOffset += 0.1f;
@@ -39,12 +30,10 @@ public class Menu extends State {
         }
     }
 
-
     @Override
     public void draw(Graphics2D g) {
         menuUI.render(g, currentSelection, animationOffset);
     }
-
 
     @Override
     public void keyPressed(int code) {
@@ -65,7 +54,6 @@ public class Menu extends State {
         }
     }
 
-
     private void navigateUp() {
         currentSelection--;
         if (currentSelection < 0) {
@@ -75,23 +63,21 @@ public class Menu extends State {
 
     private void navigateDown() {
         currentSelection++;
-        if (currentSelection >= options.length) {
+        if (currentSelection >= options. length) {
             currentSelection = 0;
         }
     }
 
-
     private void handleSelection() {
         switch (currentSelection) {
             case 0: // Play
-                game.getStateManager().setState(game.getPlaying());
+                game.getStateRegistry().setState("playing");
                 break;
             case 1: // Quit
                 System.exit(0);
                 break;
         }
     }
-
 
     @Override
     public void keyReleased(int code) {
