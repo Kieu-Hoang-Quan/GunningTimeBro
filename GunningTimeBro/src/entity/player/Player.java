@@ -1,245 +1,251 @@
-package entity. player;
+package entity.player;
 
-import entity.Entity;
-import entity.components. HealthComponent;
-import entity.components.MeleeComponent;
-import entity.player.playercomponents.*;
-import entity.enemy.Enemy;
+import entity. Entity;
+import entity.ICollidable;
+import entity. components.HealthComponent;
+import entity.player.components.*;
 import main.Game;
 import utilz.PhysicsHelper;
-import static utilz.Constants.PlayerConstants.*;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Player extends Entity {
+/**
+ * Player - Refactored với Component-Based Architecture.
+ *
+ * SOLID:
+ * - SRP: Player chỉ còn điều phối components, không chứa logic nặng
+ * - OCP: Thêm behavior mới = thêm component, không sửa Player
+ * - DIP: Phụ thuộc interface PlayerComponent
+ *
+ * Responsibilities còn lại:
+ * - Initialize và quản lý components
+ * - Forward input/events tới components
+ * - Render (delegate cho PlayerRender)
+ */
+public class Player extends Entity implements ICollidable {
 
-    private PlayerPhysics physics;
-    private PlayerAnimator animator;
+    // ===== Component System =====
+    private PlayerComponentRegistry components;
+
+    // ===== Render (không phải component vì render riêng) =====
     private PlayerRender renderer;
 
+    // ===== Input =====
     private InputHandler inputHandler;
-    private MovementState movementState;
-    private AnimationState animationState;
 
-    private HealthComponent healthComponent;
-    private MeleeComponent meleeComponent;
-
-    private PlayerInventory inventory;
-    private PlayerAbilitySystem abilitySystem;
-    private PlayerBuffSystem buffSystem;
-
+    // ===== Direction =====
     private boolean flip = false;
-    private boolean attacking = false;
-    private boolean attackStarted = false;
-    private boolean attackHit = false;
-    private boolean usingLightning = false;
 
+    // ===== Level Data =====
     private int[][] lvlData;
-    private ArrayList<Enemy> enemies;
 
-    private Rectangle2D.Float attackBox;
+    // ===== Systems (shared, không phải per-frame update) =====
+    private HealthComponent healthComponent;
+    private PlayerBuffSystem buffSystem;
+    private PlayerAbilitySystem abilitySystem;
+    private PlayerInventory inventory;
 
-    private static final float NORMAL_ATTACK_RANGE = 20f * Game.SCALE;
-    private static final float LIGHTNING_ATTACK_RANGE = 40f * Game.SCALE;
-
+    /**
+     * Constructor
+     */
     public Player(float x, float y, int width, int height) {
         super(x, y, width, height);
 
+        // Init hitbox
         initHitbox(x, y, 6 * Game.SCALE, 15 * Game.SCALE);
-        attackBox = new Rectangle2D.Float(x, y, NORMAL_ATTACK_RANGE, 15 * Game.SCALE);
 
-        this.physics = new PlayerPhysics(this);
-        this.animator = new PlayerAnimator();
-        this.renderer = new PlayerRender();
+        // Init systems
+        initSystems();
 
-        this.inputHandler = new InputHandler();
-        this.movementState = new MovementState(physics, inputHandler);
-        this.animationState = new AnimationState(movementState);
+        // Init components
+        initComponents();
 
-        this.healthComponent = new HealthComponent(this, 100f);
-        this.meleeComponent = new MeleeComponent(this, 15f);
-
-        this.inventory = new PlayerInventory();
-        this.abilitySystem = new PlayerAbilitySystem();
-        this.buffSystem = new PlayerBuffSystem();
+        // Init render
+        renderer = new PlayerRender();
     }
 
-    public void update() {
-        if (lvlData == null) return;
+    /**
+     * Initialize shared systems
+     */
+    private void initSystems() {
+        inputHandler = new InputHandler();
+        healthComponent = new HealthComponent(this, 100f);
+        buffSystem = new PlayerBuffSystem();
+        abilitySystem = new PlayerAbilitySystem();
+        inventory = new PlayerInventory();
+    }
 
-        if (! healthComponent.isAlive()) {
+    /**
+     * Initialize component registry và đăng ký components
+     *
+     * Thứ tự đăng ký quan trọng:
+     * 1. Physics:  cần update position trước
+     * 2. Combat: dùng position mới để check hit
+     * 3. Animation: dựa trên combat state để chọn anim
+     */
+    private void initComponents() {
+        components = new PlayerComponentRegistry();
+
+        // 1. Physics Component
+        PlayerPhysicsComponent physicsComp = new PlayerPhysicsComponent(this);
+        components.register(PlayerPhysicsComponent.class, physicsComp);
+
+        // 2. Combat Component
+        PlayerCombatComponent combatComp = new PlayerCombatComponent(this, 15f);
+        components.register(PlayerCombatComponent.class, combatComp);
+
+        // 3. Animation Component (cần physics cho MovementState)
+        PlayerAnimator animator = new PlayerAnimator();
+        MovementState movementState = new MovementState(physicsComp. getPhysics(), inputHandler);
+        AnimationState animationState = new AnimationState(movementState);
+        PlayerAnimationComponent animComp = new PlayerAnimationComponent(animator, animationState);
+        components.register(PlayerAnimationComponent.class, animComp);
+    }
+
+    /**
+     * Update mỗi frame
+     */
+    public void update() {
+        // Guard: không update nếu chưa có level data hoặc đã chết
+        if (lvlData == null || ! healthComponent.isAlive()) {
             return;
         }
 
-        updateAttackState();
+        float deltaTime = 1f / 60f;
 
-        physics.update(lvlData,
-                inputHandler.isLeft(),
-                inputHandler.isRight(),
-                inputHandler.isJump()
-        );
+        // Update tất cả components (theo thứ tự đăng ký)
+        components.updateAll(this, deltaTime);
 
-        healthComponent.update(1f / 60f);
-        meleeComponent.update(1f / 60f);
-        buffSystem.update(1f / 60f);
+        // Update shared systems
+        healthComponent.update(deltaTime);
+        buffSystem.update(deltaTime);
 
-        updateDamageBoosts();
-
+        // Update flip direction dựa trên input
         updateFlip();
-        updateAttackBox();
-
-        animationState.setAttacking(attacking);
-        animationState.setUsingLightning(usingLightning);
-        int currentAction = animationState.getCurrentAction();
-        animator.update(currentAction);
     }
 
-    private void updateDamageBoosts() {
-        float totalBoost = buffSystem.getTotalBuffValue("DAMAGE_BOOST");
-        meleeComponent.setDamageMultiplier(1.0f + totalBoost);
-    }
-
-    private void updateAttackState() {
-        if (attackStarted) {
-            attacking = true;
-
-            if (animator.getAniIndex() == 3 && !attackHit && enemies != null) {
-                checkAttackHit();
-                attackHit = true;
-            }
-
-            if (animator.isAnimationFinished()) {
-                attacking = false;
-                attackStarted = false;
-                attackHit = false;
-                usingLightning = false;
-                animator.resetAnimation();
-            }
-        }
-    }
-
-    private void checkAttackHit() {
-        int attackType = animationState.getCurrentAction();
-        float finalDamage = meleeComponent. calculateDamage(attackType);
-
-        System.out.println("========== ATTACK ==========");
-        System.out.println("Type: " + getAttackTypeName());
-        System.out.println("FINAL DAMAGE: " + finalDamage);
-        System.out.println("============================");
-
-        for (Enemy enemy : enemies) {
-            if (enemy.isActive() && enemy.getHealthComponent().isAlive()) {
-                if (attackBox.intersects(enemy.getHitbox())) {
-                    enemy.getHealthComponent().takeDamage(finalDamage, this);
-                    meleeComponent.incrementCombo();
-                    System.out.println("[Player] Hit!  Combo: " + meleeComponent.getComboCount());
-                }
-            }
-        }
-    }
-
-    private String getAttackTypeName() {
-        int currentAction = animationState.getCurrentAction();
-
-        switch (currentAction) {
-            case LIGHTNING:
-                return "LIGHTNING STRIKE";
-            case HITRUN:
-                return "Running Attack";
-            case HIT:
-                return "Standing Attack";
-            default:
-                return "Attack";
-        }
-    }
-
-    private void updateAttackBox() {
-        float range = NORMAL_ATTACK_RANGE;
-
-        if (usingLightning) {
-            range = LIGHTNING_ATTACK_RANGE;
-        }
-
-        attackBox.width = range;
-
-        if (flip) {
-            attackBox.x = hitbox.x - attackBox.width;
-        } else {
-            attackBox.x = hitbox.x + hitbox.width;
-        }
-        attackBox.y = hitbox.y;
-    }
-
+    /**
+     * Update facing direction
+     */
     private void updateFlip() {
         if (inputHandler.isLeft()) flip = true;
         if (inputHandler.isRight()) flip = false;
     }
 
+    /**
+     * Render player
+     */
     public void render(Graphics g, int camX) {
         renderer.render(g, this, camX);
     }
 
+    /**
+     * Load level data và set initial physics state
+     */
     public void loadLvlData(int[][] lvlData) {
         this.lvlData = lvlData;
+
+        // Check nếu spawn trên không thì set inAir
         if (! PhysicsHelper.isEntityOnFloor(hitbox, lvlData, Game.TILES_SIZE)) {
-            physics.setInAir(true);
+            getComponent(PlayerPhysicsComponent. class).getPhysics().setInAir(true);
         }
     }
 
-    public void setEnemies(ArrayList<Enemy> enemies) {
-        this.enemies = enemies;
-        physics.setEnemies(enemies);
+    /**
+     * Set enemies/obstacles cho physics và combat
+     * Convert sang List<ICollidable> cho DIP
+     */
+    public void setEnemies(ArrayList<?  extends ICollidable> enemies) {
+        List<ICollidable> collidables = new ArrayList<>(enemies);
+
+        // Set cho physics (block movement)
+        getComponent(PlayerPhysicsComponent.class).getPhysics().setObstacles(collidables);
+
+        // Set cho combat (damage targets)
+        getComponent(PlayerCombatComponent.class).setTargets(collidables);
     }
 
+    /**
+     * Reset input flags (khi window lose focus)
+     */
     public void resetDirBooleans() {
-        inputHandler.resetAll();
+        inputHandler. resetAll();
     }
 
+    // ===== Combat Entry Points =====
+
+    /**
+     * Bắt đầu attack thường
+     */
     public void setAttacking(boolean attacking) {
-        if (attacking && !this.attacking && !attackStarted) {
-            this.attackStarted = true;
-            this.attackHit = false;
-            this.usingLightning = false;
-            animator.resetAnimation();
+        if (attacking) {
+            getComponent(PlayerCombatComponent.class).startAttack(this);
         }
     }
 
+    /**
+     * Bắt đầu lightning attack
+     */
     public void useLightningPower() {
-        if (attacking || attackStarted) {
-            return;
-        }
-
-        if (abilitySystem.useLightning()) {
-            this.usingLightning = true;
-            this.attackStarted = true;
-            this.attackHit = false;
-            animator.resetAnimation();
-
-            int remaining = abilitySystem.getLightningCharges();
-            System.out.println("LIGHTNING STRIKE");
-            System.out.println("Charges remaining: " + remaining);
-        } else {
-            System.out.println("[Lightning] No charges!  Collect Lightning Power items.");
-        }
+        getComponent(PlayerCombatComponent.class).startLightningAttack(this);
     }
+
+    // ===== Component Access =====
+
+    /**
+     * Generic component getter
+     */
+    public <T extends PlayerComponent> T getComponent(Class<T> type) {
+        return components.get(type);
+    }
+
+    // ===== ICollidable Implementation =====
+
+    @Override
+    public boolean isActive() {
+        return healthComponent. isAlive();
+    }
+
+    // ===== Getters =====
 
     public HealthComponent getHealthComponent() { return healthComponent; }
-    public MeleeComponent getMeleeComponent() { return meleeComponent; }
-    public PlayerInventory getInventory() { return inventory; }
-    public PlayerAbilitySystem getAbilitySystem() { return abilitySystem; }
     public PlayerBuffSystem getBuffSystem() { return buffSystem; }
+    public PlayerAbilitySystem getAbilitySystem() { return abilitySystem; }
+    public PlayerInventory getInventory() { return inventory; }
+    public InputHandler getInputHandler() { return inputHandler; }
+    public int[][] getLevelData() { return lvlData; }
+    public boolean isFlip() { return flip; }
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
+
+    /**
+     * Get animator từ animation component
+     */
+    public PlayerAnimator getAnimator() {
+        return getComponent(PlayerAnimationComponent.class).getAnimator();
+    }
+
+    /**
+     * Get animation state từ animation component
+     */
+    public AnimationState getAnimationState() {
+        return getComponent(PlayerAnimationComponent.class).getAnimationState();
+    }
+
+    /**
+     * Get melee component từ combat component
+     */
+    public entity.components.MeleeComponent getMeleeComponent() {
+        return getComponent(PlayerCombatComponent.class).getMeleeComponent();
+    }
+
+    // ===== Setters =====
 
     public void setFlip(boolean flip) { this.flip = flip; }
-    public boolean isFlip() { return flip; }
-
     public void setLeft(boolean left) { inputHandler.setLeft(left); }
     public void setRight(boolean right) { inputHandler.setRight(right); }
     public void setJump(boolean jump) { inputHandler.setJump(jump); }
     public void setDown(boolean down) { inputHandler.setDown(down); }
-
-    public PlayerAnimator getAnimator() { return animator; }
-    public int getWidth() { return width; }
-    public int getHeight() { return height; }
 }

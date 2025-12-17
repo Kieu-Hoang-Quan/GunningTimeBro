@@ -1,18 +1,19 @@
 package main;
 
 import gamestates.GameStateManager;
-import inputs.InputManager;
-import ui.components.HealthBar;
-import world.*;
+import map.LevelTileConfig;
 import entity.player.Player;
 import entity.enemy.EnemyManager;
-import gamestates.GameStateRegistry;
-import map.*;
-import ui.*;
 
 import java.awt.*;
-import java.io.IOException;
 
+/**
+ * Game - Main class.
+ *
+ * SOLID:
+ * - SRP: Chỉ lo game loop và điều phối
+ * - Delegate mọi thứ cho GameContext
+ */
 public class Game implements Runnable {
 
     private GameWindow gameWindow;
@@ -22,172 +23,111 @@ public class Game implements Runnable {
     private final int FPS_SET = 120;
     private final int UPS_SET = 200;
 
-    private Player player;
-    private EnemyManager enemyManager;
-    private World world;
-    private InputManager inputManager;
+    private GameContext context;
 
-    private GameStateRegistry stateRegistry;
-
-    private HealthBarUI healthBarUI;
-    private ItemNotificationUI itemNotificationUI;
-
+    // Constants
     public static final int TILES_DEFAULT_SIZE = 32;
     public static final float SCALE = 2f;
     public static final int TILES_IN_WIDTH = 26;
     public static final int TILES_IN_HEIGHT = 14;
-    public static final int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
+    public static final int TILES_SIZE = (int)(TILES_DEFAULT_SIZE * SCALE);
     public static final int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
     public static final int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 
     public Game() {
-        System.out.println("[Game] ========== STARTING GAME ==========");
-        initClasses();
-        System.out.println("[Game] ========== CREATING WINDOW ==========");
-        gamePanel = new GamePanel(this);
-        System.out.println("[Game] GamePanel created");
-        gameWindow = new GameWindow(gamePanel);
-        System.out.println("[Game] GameWindow created");
-        gamePanel.requestFocus();
-        System.out.println("[Game] Focus requested");
-        startGameLoop();
-        System.out. println("[Game] ========== GAME STARTED ==========");
-    }
+        System.out.println("[Game] Starting initialization...");
 
-    private void initClasses() {
-        System.out.println("[Game] Initialization started");
-
-        System.out.println("[Game] Creating InputManager.. .");
-        inputManager = new InputManager();
-
-        System.out.println("[Game] Creating World...");
         try {
-            world = new World();
-        } catch (IOException e) {
-            System.err.println("[Game] FATAL: World creation failed!");
+            // Build context - context sẽ được gán trước khi được sử dụng
+            context = new GameContextBuilder().build(this);
+            System.out.println("[Game] Context built successfully");
+        } catch (Exception e) {
+            System.err.println("[Game] Failed to build GameContext");
             e.printStackTrace();
-            System.exit(1);
+            throw new RuntimeException("Failed to build GameContext", e);
         }
-        System.out.println("[Game] World created successfully");
 
-        System.out.println("[Game] Creating Player...");
-        float spawnX = 3 * TILES_SIZE;
-        float spawnY = 300;
-        player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
-        player.loadLvlData(LevelTileConfig.createLevelGrid());
-        System.out.println("[Game] Player created");
+        // Tạo UI components
+        gamePanel = new GamePanel(this);
+        gameWindow = new GameWindow(gamePanel);
+        gamePanel.requestFocus();
 
-        System.out.println("[Game] Creating EnemyManager.. .");
-        enemyManager = new EnemyManager(this);
-        System.out.println("[Game] EnemyManager instance created");
+        // Start game loop
+        startGameLoop();
 
-        System.out. println("[Game] Loading enemies...");
-        enemyManager.loadEnemies(LevelTileConfig.createLevelGrid());
-        System.out.println("[Game] Enemies loaded");
-
-        System.out. println("[Game] Setting player enemies...");
-        player.setEnemies(enemyManager.getEnemies());
-        System.out.println("[Game] Player enemies set");
-
-        System.out. println("[Game] Creating UI...");
-        healthBarUI = new HealthBarUI(player);
-        System.out.println("[Game] HealthBar created");
-
-        itemNotificationUI = new ItemNotificationUI();
-        System.out.println("[Game] ItemNotificationUI created");
-
-        System.out.println("[Game] Creating StateRegistry...");
-        stateRegistry = new GameStateRegistry(this, world, inputManager);
-        System.out. println("[Game] StateRegistry created");
-
-        System.out.println("[Game] Setting initial state to menu...");
-        stateRegistry. setState("menu");
-        System.out. println("[Game] Initial state set");
-
-        System.out.println("[Game] Initialization complete ✓");
+        System.out.println("[Game] Initialization complete");
     }
 
     private void startGameLoop() {
-        System.out.println("[Game] Creating game thread...");
         gameThread = new Thread(this);
-        System.out.println("[Game] Starting thread.. .");
         gameThread.start();
-        System.out.println("[Game] Thread started ✓");
     }
 
     public void update() {
-        stateRegistry.getStateManager().update();
+        context.stateRegistry.getStateManager().update();
 
-        if (stateRegistry.getCurrentState() == stateRegistry.getPlaying()) {
-            healthBarUI.update();
-            itemNotificationUI.update(1f / 60f);
+        if (isPlaying()) {
+            context.healthBarUI.update();
+            context.itemNotificationUI.update(1f / 60f);
 
-            if (! player.getHealthComponent().isAlive()) {
-                stateRegistry.setState("gameOver");
+            if (! context.player.getHealthComponent().isAlive()) {
+                context.stateRegistry.setState("gameOver");
             }
         }
     }
 
     public void render(Graphics2D g) {
-        stateRegistry.getStateManager().render(g);
+        context.stateRegistry.getStateManager().render(g);
 
-        if (stateRegistry.getCurrentState() == stateRegistry.getPlaying()) {
-            healthBarUI.render(g);
-            itemNotificationUI.render(g);
+        if (isPlaying()) {
+            context.healthBarUI. render(g);
+            context. itemNotificationUI.render(g);
         }
     }
 
+    private boolean isPlaying() {
+        return context.stateRegistry.getCurrentState() == context.stateRegistry.getPlaying();
+    }
+
     public void restartGame() {
-        System.out.println("[Game] ========== RESTARTING GAME ==========");
+        System.out.println("[Game] Restarting.. .");
 
         float spawnX = 3 * TILES_SIZE;
         float spawnY = 300;
 
-        // Reset player
-        System.out.println("[Game] Resetting player...");
-        player = new Player(spawnX, spawnY, (int) (64 * SCALE), (int) (40 * SCALE));
-        player.loadLvlData(LevelTileConfig.createLevelGrid());
+        // Tạo Player mới
+        Player newPlayer = new Player(spawnX, spawnY,
+                (int)(64 * SCALE), (int)(40 * SCALE));
+        newPlayer.loadLvlData(LevelTileConfig.createLevelGrid());
 
-        // Reset enemies
-        System. out.println("[Game] Resetting enemies...");
-        enemyManager = new EnemyManager(this);
-        enemyManager.loadEnemies(LevelTileConfig.createLevelGrid());
-        player.setEnemies(enemyManager.getEnemies());
+        // Tạo EnemyManager mới
+        EnemyManager newEnemyManager = new EnemyManager(this);
+        newEnemyManager.loadEnemies(LevelTileConfig. createLevelGrid());
+        newPlayer.setEnemies(newEnemyManager.getEnemies());
 
-        System.out.println("[Game] Resetting items...");
-        world.getItemManager().clear();
-        world.getItemManager().loadItemsForLevel(1);
+        // Reset items
+        context.world.getItemManager().clear();
+        context.world.getItemManager().loadItemsForLevel(1);
 
-        // Reset UI
-        System.out.println("[Game] Resetting UI...");
-        healthBarUI = new HealthBarUI(player);
-        itemNotificationUI = new ItemNotificationUI();
+        // Update context
+        context.updateEntities(newPlayer, newEnemyManager);
 
-        // Reset states through registry
-        System.out.println("[Game] Resetting states...");
-        stateRegistry.restartPlaying();
+        // Restart states
+        context.stateRegistry. restartPlaying(newPlayer, newEnemyManager);
 
-        System.out. println("[Game] ========== RESTART COMPLETE ==========");
+        System.out.println("[Game] Restart complete");
     }
 
     public void windowFocusLost() {
-        player.resetDirBooleans();
+        context.player.resetDirBooleans();
     }
 
     @Override
     public void run() {
-        System.out.println("[GameLoop] ========== GAME LOOP STARTED ==========");
-
-        double timePerFrame = 1000000000.0 / FPS_SET;
-        double timePerUpdate = 1000000000.0 / UPS_SET;
+        double timePerFrame = 1_000_000_000.0 / FPS_SET;
+        double timePerUpdate = 1_000_000_000.0 / UPS_SET;
         long previousTime = System.nanoTime();
-        int frames = 0;
-        int updates = 0;
-        long lastCheck = System.currentTimeMillis();
-        double deltaU = 0;
-        double deltaF = 0;
-
-        System.out.println("[GameLoop] Entering main loop...");
+        double deltaU = 0, deltaF = 0;
 
         while (true) {
             long currentTime = System.nanoTime();
@@ -195,36 +135,18 @@ public class Game implements Runnable {
             deltaF += (currentTime - previousTime) / timePerFrame;
             previousTime = currentTime;
 
-            if (deltaU >= 1) {
-                update();
-                updates++;
-                deltaU--;
-            }
-
-            if (deltaF >= 1) {
-                gamePanel.repaint();
-                frames++;
-                deltaF--;
-            }
-
-            if (System.currentTimeMillis() - lastCheck >= 1000) {
-                System.out.println("FPS: " + frames + " | UPS: " + updates);
-                frames = 0;
-                updates = 0;
-                lastCheck = System.currentTimeMillis();
-            }
+            if (deltaU >= 1) { update(); deltaU--; }
+            if (deltaF >= 1) { gamePanel.repaint(); deltaF--; }
         }
     }
 
-    public Player getPlayer() { return player; }
-    public EnemyManager getEnemyManager() { return enemyManager; }
-    public GameStateRegistry getStateRegistry() { return stateRegistry; }
-    public InputManager getInputManager() { return inputManager; }
+    // ===== Getters =====
+    public GameContext getContext() { return context; }
+    public Player getPlayer() { return context.player; }
+    public EnemyManager getEnemyManager() { return context.enemyManager; }
+    public gamestates.GameStateRegistry getStateRegistry() { return context.stateRegistry; }
+    public inputs.InputManager getInputManager() { return context.inputManager; }
     public GamePanel getGamePanel() { return gamePanel; }
-    public GameStateManager getStateManager() {
-        return stateRegistry.getStateManager();
-    }
-    public World getWorld() {
-        return world;
-    }
+    public GameStateManager getStateManager() { return context.stateRegistry.getStateManager(); }
+    public world.World getWorld() { return context.world; }
 }

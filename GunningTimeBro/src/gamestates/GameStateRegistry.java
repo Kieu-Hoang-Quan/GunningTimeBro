@@ -2,28 +2,42 @@ package gamestates;
 
 import main.Game;
 import world.World;
+import entity.player.Player;
+import entity.enemy.EnemyManager;
 import inputs.InputManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Centralized state management - SOLID compliant
- * Add new states WITHOUT modifying Game.java
+ * Centralized state management
+ *
+ * SOLID:
+ * - SRP:  Chỉ quản lý states
+ * - OCP: Thêm state mới không cần sửa code cũ
+ * - DIP: Nhận dependencies qua constructor
  */
 public class GameStateRegistry {
 
-    private Game game;
-    private World world;
-    private InputManager inputManager;
+    private final Game game;
+    private final World world;
+    private final InputManager inputManager;
 
-    private Map<String, State> states;
-    private GameStateManager stateManager;
+    // Dependencies cần cho states
+    private Player player;
+    private EnemyManager enemyManager;
 
-    public GameStateRegistry(Game game, World world, InputManager inputManager) {
+    private final Map<String, State> states;
+    private final GameStateManager stateManager;
+
+    public GameStateRegistry(Game game, World world, InputManager inputManager,
+                             Player player, EnemyManager enemyManager) {
         this.game = game;
         this.world = world;
         this.inputManager = inputManager;
+        this.player = player;
+        this.enemyManager = enemyManager;
+
         this.states = new HashMap<>();
         this.stateManager = new GameStateManager();
 
@@ -31,17 +45,19 @@ public class GameStateRegistry {
     }
 
     private void registerAllStates() {
-        // Register all game states
         registerState("menu", new Menu(game));
-        registerState("playing", new Playing(game, world, inputManager));
-        registerState("pause", new Pause(game, getPlaying()));
-        registerState("gameOver", new GameOver(game));
 
+        // Tạo Playing với dependencies trực tiếp
+        Playing playing = new Playing(game, world, player, enemyManager, inputManager);
+        registerState("playing", playing);
+
+        registerState("pause", new Pause(game, playing));
+        registerState("gameOver", new GameOver(game));
     }
 
     private void registerState(String name, State state) {
         states.put(name, state);
-        System.out.println("[StateRegistry] Registered:  " + name);
+        System.out.println("[StateRegistry] Registered: " + name);
     }
 
     public State getState(String name) {
@@ -57,13 +73,17 @@ public class GameStateRegistry {
         }
     }
 
-    public void restartPlaying() {
-        // Remove old states
+    /**
+     * Restart với Player và EnemyManager mới
+     */
+    public void restartPlaying(Player newPlayer, EnemyManager newEnemyManager) {
+        this.player = newPlayer;
+        this.enemyManager = newEnemyManager;
+
         states.remove("playing");
         states.remove("pause");
 
-        // Create new instances
-        Playing newPlaying = new Playing(game, world, inputManager);
+        Playing newPlaying = new Playing(game, world, player, enemyManager, inputManager);
         Pause newPause = new Pause(game, newPlaying);
 
         registerState("playing", newPlaying);
@@ -79,5 +99,5 @@ public class GameStateRegistry {
     public GameOver getGameOver() { return (GameOver) states.get("gameOver"); }
 
     public GameStateManager getStateManager() { return stateManager; }
-    public State getCurrentState() { return stateManager. getCurrentState(); }
+    public State getCurrentState() { return stateManager.getCurrentState(); }
 }

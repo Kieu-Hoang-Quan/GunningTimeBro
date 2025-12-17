@@ -1,4 +1,4 @@
-package entity.player.playercomponents;
+package entity.player.components;
 
 import static utilz.Constants.PlayerConstants.*;
 
@@ -15,7 +15,6 @@ public class AnimationState {
     }
 
     public int getCurrentAction() {
-        // ✅ Return LIGHTNING constant
         if (usingLightning) {
             return LIGHTNING;
         }

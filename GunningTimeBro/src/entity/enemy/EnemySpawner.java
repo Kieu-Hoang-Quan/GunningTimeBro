@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class EnemySpawner {
 
-    // ✅ Your exact spawn configuration
+    //Your exact spawn configuration
     private static final int MIN_PLATFORM_SIZE = 8;
     private static final int NO_SPAWN_LEFT = 300;
     private static final int NO_SPAWN_RIGHT_OFFSET = 20;
