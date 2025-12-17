@@ -1,104 +1,153 @@
 package entity.player;
 
 import entity.Entity;
-import entity.enemy.Enemy;
+import entity.ICollidable;
 import main.Game;
-import utilz.PhysicsHelper;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import utilz. PhysicsHelper;
 
+import java.awt. geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Player Physics - Movement và Collision.
+ *
+ * SOLID:
+ * - SRP: Chỉ lo physics
+ * - DIP: Dùng ICollidable interface thay vì Enemy cụ thể
+ */
 public class PlayerPhysics {
 
-    private float airSpeed = 0f;
+    // ===== Physics Constants =====
     private float gravity = 0.04f * Game.SCALE;
     private float jumpSpeed = -2.25f * Game.SCALE;
     private float fallSpeedAfterCollision = 0.5f * Game.SCALE;
     private float playerSpeed = 1.5f * Game.SCALE;
+
+    // ===== State =====
+    private float airSpeed = 0f;
     private boolean inAir = false;
 
+    // ===== References =====
     private Entity entity;
-    private ArrayList<Enemy> enemies;
+
+    // ===== Obstacles (DIP:  interface thay vì concrete class) =====
+    private List<ICollidable> obstacles = new ArrayList<>();
 
     public PlayerPhysics(Entity entity) {
         this.entity = entity;
     }
 
-    public void setEnemies(ArrayList<Enemy> enemies) {
-        this.enemies = enemies;
+    /**
+     * Set obstacles để check collision
+     * @param obstacles List của ICollidable (Enemy, NPC, etc.)
+     */
+    public void setObstacles(List<ICollidable> obstacles) {
+        this.obstacles = obstacles != null ? obstacles : new ArrayList<>();
     }
 
+    // Backward compatibility
+    public void setEnemies(ArrayList<? > enemies) {
+        if (enemies != null && ! enemies.isEmpty() && enemies.get(0) instanceof ICollidable) {
+            this.obstacles = new ArrayList<>();
+            for (Object obj : enemies) {
+                this.obstacles.add((ICollidable) obj);
+            }
+        }
+    }
+
+    /**
+     * Update physics mỗi frame
+     */
     public void update(int[][] lvlData, boolean left, boolean right, boolean jump) {
         Rectangle2D.Float hitbox = entity.getHitbox();
         int tileSize = Game.TILES_SIZE;
         float xSpeed = 0;
 
+        // Handle jump
         if (jump) {
-            jump();
+            tryJump();
         }
 
-        if (! left && !right && !inAir) {
+        // Early return nếu không có input và đang trên đất
+        if (!left && !right && !inAir) {
             return;
         }
 
+        // Calculate horizontal speed
         if (left) xSpeed -= playerSpeed;
         if (right) xSpeed += playerSpeed;
 
-        if (! inAir) {
-            if (! PhysicsHelper.isEntityOnFloor(hitbox, lvlData, tileSize)) {
-                inAir = true;
-            }
+        // Check nếu rơi khỏi platform
+        if (! inAir && ! PhysicsHelper.isEntityOnFloor(hitbox, lvlData, tileSize)) {
+            inAir = true;
         }
 
+        // Update position
         if (inAir) {
-            if (PhysicsHelper.canMoveHere(hitbox. x, hitbox.y + airSpeed,
-                    hitbox.width, hitbox.height, lvlData, tileSize)) {
-                hitbox.y += airSpeed;
-                airSpeed += gravity;
-                updateXPos(xSpeed, lvlData, tileSize);
-            } else {
-                hitbox.y = PhysicsHelper.getEntityYPosUnderRoofOrAboveFloor(hitbox, airSpeed, tileSize);
-                if (airSpeed > 0) {
-                    resetInAir();
-                } else {
-                    airSpeed = fallSpeedAfterCollision;
-                }
-                updateXPos(xSpeed, lvlData, tileSize);
-            }
+            updateInAir(hitbox, lvlData, tileSize, xSpeed);
         } else {
             updateXPos(xSpeed, lvlData, tileSize);
         }
     }
 
+    /**
+     * Update khi đang trong không trung
+     */
+    private void updateInAir(Rectangle2D. Float hitbox, int[][] lvlData,
+                             int tileSize, float xSpeed) {
+        // Try move vertically
+        if (PhysicsHelper. canMoveHere(hitbox. x, hitbox.y + airSpeed,
+                hitbox.width, hitbox.height, lvlData, tileSize)) {
+            hitbox.y += airSpeed;
+            airSpeed += gravity;
+            updateXPos(xSpeed, lvlData, tileSize);
+        } else {
+            // Collided vertically
+            hitbox.y = PhysicsHelper.getEntityYPosUnderRoofOrAboveFloor(hitbox, airSpeed, tileSize);
+            if (airSpeed > 0) {
+                // Landed
+                resetInAir();
+            } else {
+                // Hit ceiling
+                airSpeed = fallSpeedAfterCollision;
+            }
+            updateXPos(xSpeed, lvlData, tileSize);
+        }
+    }
+
+    /**
+     * Update horizontal position với collision check
+     */
     private void updateXPos(float xSpeed, int[][] lvlData, int tileSize) {
         Rectangle2D.Float hitbox = entity.getHitbox();
 
-        // CHECK TILE COLLISION
+        // Check tile collision
         if (! PhysicsHelper.canMoveHere(hitbox. x + xSpeed, hitbox.y,
                 hitbox.width, hitbox.height, lvlData, tileSize)) {
             hitbox.x = PhysicsHelper.getEntityXPosNextToWall(hitbox, xSpeed, tileSize);
             return;
         }
 
-        // CHECK ENEMY COLLISION
-        if (enemies != null) {
-            Rectangle2D.Float testBox = new Rectangle2D.Float(
-                    hitbox.x + xSpeed, hitbox.y, hitbox.width, hitbox. height
-            );
+        // Check obstacle collision (DIP: dùng ICollidable)
+        Rectangle2D.Float testBox = new Rectangle2D.Float(
+                hitbox.x + xSpeed, hitbox.y, hitbox. width, hitbox.height
+        );
 
-            for (Enemy enemy : enemies) {
-                if (enemy.isActive() && enemy.getHealthComponent().isAlive()) {
-                    if (testBox.intersects(enemy.getHitbox())) {
-                        return;  // Block movement
-                    }
-                }
+        for (ICollidable obstacle : obstacles) {
+            if (obstacle.isActive() && testBox.intersects(obstacle.getHitbox())) {
+                return; // Block movement
             }
         }
 
-        // NO COLLISION - MOVE
+        // No collision - move
         hitbox.x += xSpeed;
     }
 
-    private void jump() {
+    /**
+     * Try to jump
+     */
+    private void tryJump() {
         if (inAir) return;
         inAir = true;
         airSpeed = jumpSpeed;
@@ -109,15 +158,9 @@ public class PlayerPhysics {
         airSpeed = 0;
     }
 
-    public boolean isInAir() {
-        return inAir;
-    }
+    // ===== Getters/Setters =====
 
-    public void setInAir(boolean inAir) {
-        this.inAir = inAir;
-    }
-
-    public float getAirSpeed() {
-        return airSpeed;
-    }
+    public boolean isInAir() { return inAir; }
+    public void setInAir(boolean inAir) { this.inAir = inAir; }
+    public float getAirSpeed() { return airSpeed; }
 }

@@ -84,7 +84,6 @@ public class InputManager {
 
 
     public boolean isActionJustPressed(Action action) {
-        // TODO: Implement edge detection
         return isActionActive(action);
     }
 

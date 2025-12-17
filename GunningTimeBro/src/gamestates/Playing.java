@@ -1,75 +1,83 @@
 package gamestates;
 
 import main.Game;
-import world.Camera;
 import world.World;
+import entity.player.Player;
+import entity.enemy.EnemyManager;
+import gamestates.systems.GameplayCoordinator;
 import inputs.InputManager;
 import inputs.InputManager.Action;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
+/**
+ * Playing State - Refactored.
+ *
+ * SOLID:
+ * - SRP:  Chỉ điều phối gameplay
+ * - DIP:  Nhận dependencies qua constructor
+ */
 public class Playing extends State {
-    private World world;
-    private final Camera camera;
-    private InputManager inputManager;
+
+    private final World world;
+    private final Player player;
+    private final GameplayCoordinator coordinator;
+    private final InputManager inputManager;
 
     private boolean attackKeyPressed = false;
-    private boolean lightningKeyPressed = false;  // ✅ Only this (K key)
+    private boolean lightningKeyPressed = false;
     private boolean playerFell = false;
 
-    public Playing(Game game, World world, InputManager inputManager) {
+    /**
+     * Constructor - nhận tất cả dependencies trực tiếp
+     */
+    public Playing(Game game, World world, Player player,
+                   EnemyManager enemyManager, InputManager inputManager) {
         super(game);
         this.world = world;
-        this.camera = new Camera();
+        this.player = player;
         this.inputManager = inputManager;
+
+        // Tạo coordinator với dependencies trực tiếp
+        this.coordinator = new GameplayCoordinator(player, enemyManager, world);
     }
 
     @Override
     public void update() {
         handlePlayerInput();
-
-        game.getPlayer().update();
-        game.getEnemyManager().update();
-        world.getItemManager().update(game.getPlayer());
-
-        camera.update(game.getPlayer().getHitbox(), world.getTileMap());
-
-        if (game.getPlayer().getHitbox().y > Game.GAME_HEIGHT + 100) {
-            if (! playerFell) {
-                game.getPlayer().getHealthComponent().takeDamage(999, null);
-                playerFell = true;
-            }
-        }
+        coordinator.tick();
+        checkPlayerFall();
     }
 
     private void handlePlayerInput() {
-        game.getPlayer().setLeft(inputManager.isActionActive(Action. MOVE_LEFT));
-        game.getPlayer().setRight(inputManager.isActionActive(Action. MOVE_RIGHT));
-        game.getPlayer().setJump(inputManager.isActionActive(Action. JUMP));
+        player.setLeft(inputManager.isActionActive(Action. MOVE_LEFT));
+        player.setRight(inputManager.isActionActive(Action.MOVE_RIGHT));
+        player.setJump(inputManager.isActionActive(Action.JUMP));
 
         boolean attackNow = inputManager.isActionActive(Action.ATTACK);
         if (attackNow && !attackKeyPressed) {
-            game.getPlayer().setAttacking(true);
+            player.setAttacking(true);
         }
         attackKeyPressed = attackNow;
 
-        boolean lightningNow = inputManager.isActionActive(Action.LIGHTNING);
+        boolean lightningNow = inputManager.isActionActive(Action. LIGHTNING);
         if (lightningNow && !lightningKeyPressed) {
-            game.getPlayer().useLightningPower();
+            player.useLightningPower();
         }
         lightningKeyPressed = lightningNow;
     }
 
+    private void checkPlayerFall() {
+        if (player.getHitbox().y > Game.GAME_HEIGHT + 100 && !playerFell) {
+            player.getHealthComponent().takeDamage(999, null);
+            playerFell = true;
+        }
+    }
+
     @Override
     public void draw(Graphics2D g) {
-        int camX = camera.getX();
-
-        world.getBgManager().render(g, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
-        world.getTileMap().render(g, camX, Game.GAME_WIDTH, Game.GAME_HEIGHT);
-
-        world.getItemManager().render(g, camX);
-        game.getEnemyManager().draw(g, camX);
-        game.getPlayer().render(g, camX);
+        coordinator.render(g, world);
     }
 
     @Override
@@ -77,15 +85,25 @@ public class Playing extends State {
         if (code == KeyEvent.VK_ESCAPE) {
             game.getStateRegistry().setState("pause");
         }
+
+        if (code == KeyEvent. VK_V) {
+            coordinator.getCameraSystem().toggleSpectator();
+        }
+
+        if (coordinator.getCameraSystem().isSpectatorMode()) {
+            if (code == KeyEvent.VK_LEFT) coordinator.getCameraSystem().moveLeft();
+            if (code == KeyEvent.VK_RIGHT) coordinator.getCameraSystem().moveRight();
+        }
     }
 
     @Override
-    public void keyReleased(int code) {
-    }
+    public void keyReleased(int code) {}
 
     public void reset() {
         playerFell = false;
         attackKeyPressed = false;
         lightningKeyPressed = false;
     }
+
+    public Player getPlayer() { return player; }
 }

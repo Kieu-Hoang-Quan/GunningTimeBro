@@ -1,22 +1,27 @@
-package entity. enemy;
+package entity.enemy;
 
 import entity.Entity;
-import static utilz.Constants.EnemyConstants.*;
-import entity.components.EffectRenderer;
-import entity.components. HealthComponent;
+import entity.ICollidable;
+import entity.components.HealthComponent;
 import entity.player.Player;
 
 import java.awt.*;
-import java. awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public abstract class Enemy extends Entity {
+import static utilz.Constants.EnemyConstants.*;
+
+/**
+ * Enemy base class.
+ *
+ * SOLID:  Implements ICollidable cho DIP
+ */
+public abstract class Enemy extends Entity implements ICollidable {
 
     protected EnemyPhysics physics;
     protected EnemyAnimator animator;
     protected EnemyRender renderer;
     protected HealthComponent healthComponent;
-    protected EffectRenderer effectRenderer;
 
     protected int enemyType;
     protected int enemyState = IDLE;
@@ -34,7 +39,7 @@ public abstract class Enemy extends Entity {
     protected float attackTriggerRange = 45f;
 
     private int deathTimer = 0;
-    private static final int DEATH_FADE_TIME = 60;  // 1 second at 60 FPS
+    private static final int DEATH_FADE_TIME = 60;
 
     public Enemy(float x, float y, int width, int height, int enemyType) {
         super(x, y, width, height);
@@ -43,8 +48,7 @@ public abstract class Enemy extends Entity {
         this.physics = new EnemyPhysics(this);
         this.animator = new EnemyAnimator(this);
         this.renderer = new EnemyRender();
-        this.healthComponent = new HealthComponent(this, 33f);  //1/3 OF PLAYER (100/3 = 33)
-        this.effectRenderer = new EffectRenderer();
+        this.healthComponent = new HealthComponent(this, 33f);
 
         initHitbox(x, y, width - 10, height - 5);
         attackBox = new Rectangle2D.Float(x, y, width, height);
@@ -60,8 +64,6 @@ public abstract class Enemy extends Entity {
         if (enemyState == DEAD) {
             animator.update();
             deathTimer++;
-
-            // DISAPPEAR AFTER FADE
             if (deathTimer >= DEATH_FADE_TIME) {
                 active = false;
             }
@@ -111,18 +113,12 @@ public abstract class Enemy extends Entity {
     protected void updateAttackBox() {
         float w = hitbox.width;
         float h = hitbox.height;
-
         float effectiveRange = (enemyState == ATTACK) ? w :  w * 0.6f;
 
         attackBox.width = effectiveRange;
-        attackBox. height = h * 0.5f;
+        attackBox.height = h * 0.5f;
         attackBox.y = hitbox.y + (h - attackBox.height) / 2;
-
-        if (flip) {
-            attackBox.x = hitbox. x - attackBox.width + 10;
-        } else {
-            attackBox.x = hitbox. x + w - 10;
-        }
+        attackBox.x = flip ? hitbox.x - attackBox.width + 10 : hitbox.x + w - 10;
     }
 
     public void setNewState(int state) {
@@ -136,10 +132,14 @@ public abstract class Enemy extends Entity {
         return animator.getAniIndex() == 3;
     }
 
+    // ICollidable
+    @Override
+    public boolean isActive() { return active && healthComponent.isAlive(); }
+
+    // Getters/Setters
     public int getDeathTimer() { return deathTimer; }
     public HealthComponent getHealthComponent() { return healthComponent; }
     public void setActive(boolean active) { this.active = active; }
-    public boolean isActive() { return active; }
     public boolean isFlip() { return flip; }
     public void setFlip(boolean flip) { this.flip = flip; }
     public int getEnemyState() { return enemyState; }

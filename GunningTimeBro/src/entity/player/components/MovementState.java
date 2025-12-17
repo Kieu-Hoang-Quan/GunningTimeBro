@@ -1,4 +1,4 @@
-package entity.player.playercomponents;
+package entity.player.components;
 
 import entity.player.PlayerPhysics;
 

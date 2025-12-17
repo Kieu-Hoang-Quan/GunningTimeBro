@@ -1,4 +1,4 @@
-package entity.player. playercomponents;
+package entity.player.components;
 
 public class InputHandler {
 
